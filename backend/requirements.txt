@@ -1,3 +1,4 @@
 fastapi[all]
-pymongo
-pydantic
+pymongo==4.3.3
+pydantic==1.10.4
+motor==3.1.1

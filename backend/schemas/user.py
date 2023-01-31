@@ -1,9 +1,12 @@
 from datetime import datetime
-
+from bson.objectid import ObjectId
 from pydantic import BaseModel, EmailStr, Field
+
+from schemas.py_object_id import PyObjectId
 
 
 class UserBase(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     email: EmailStr | None = Field(example="email@email.com")
     name: str = Field(
         title="User Name", max_length=30, example="John"
@@ -13,11 +16,12 @@ class UserBase(BaseModel):
     )
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
-    created_at: datetime | None = None
+    created_at: datetime | None = None  
     updated_at: datetime | None = None
 
     class Config:
         orm_mode = True
+        json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
                 "email": "email@email.com",
