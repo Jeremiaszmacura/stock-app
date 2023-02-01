@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from schemas.user import UserOut, UserCreate
+from schemas.user import UserOut, UserCreate, UserUpdate
 from crud import user_crud
 
 
@@ -28,7 +28,14 @@ async def create_students(user: UserCreate) -> JSONResponse:
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_user)
 
 
-@router.delete("/{user_id}", response_description="User deleted")
+@router.put("/{user_id}", response_description="User updated", response_model=UserOut)
+async def update_user(user_id: str, user: UserUpdate) -> JSONResponse:
+    user = jsonable_encoder(user)
+    user = await user_crud.update_user(user_id, user)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=user)
+
+
+@router.delete("/{user_id}", response_description="User deleted", response_model=UserOut)
 async def delete_user(user_id: str) -> JSONResponse:
     user = await user_crud.delete_user(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user)
