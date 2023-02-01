@@ -1,5 +1,6 @@
 from pydantic import AnyHttpUrl, BaseSettings
 
+
 class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = [
         "http://localhost.tiangolo.com",
@@ -7,7 +8,7 @@ class Settings(BaseSettings):
         "http://localhost",
         "http://localhost:8080",
     ]
-    
+
     DATABASE_URL: str
     MONGO_INITDB_DATABASE: str
 

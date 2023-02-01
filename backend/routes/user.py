@@ -10,13 +10,13 @@ router = APIRouter()
 
 
 @router.get("/", response_description="Users retrieved", response_model=list[UserOut])
-async def get_users(skip: int = 0, limit: int = 100) -> dict:
+async def get_users(skip: int = 0, limit: int = 100) -> JSONResponse:
     users = await user_crud.get_users(skip=skip, limit=limit)
     return JSONResponse(status_code=status.HTTP_200_OK, content=users)
 
 
 @router.get("/{user_id}", response_description="User retrieved", response_model=UserOut)
-async def get_user(user_id: str) -> dict:
+async def get_user(user_id: str) -> JSONResponse:
     user = await user_crud.get_user(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user)
 
@@ -29,6 +29,6 @@ async def create_students(user: UserCreate) -> JSONResponse:
 
 
 @router.delete("/{user_id}", response_description="User deleted")
-async def delete_user(user_id: str) -> dict:
+async def delete_user(user_id: str) -> JSONResponse:
     user = await user_crud.delete_user(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user)

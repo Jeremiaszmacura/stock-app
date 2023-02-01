@@ -20,7 +20,8 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-app.include_router(user.router, tags=['Users'], prefix='/users')
+app.include_router(user.router, tags=["Users"], prefix="/users")
+
 
 @app.get("/")
 async def root():

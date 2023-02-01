@@ -24,11 +24,16 @@ async def get_user(user_id: str) -> dict:
 
 async def create_user(user: dict) -> dict:
     try:
-        new_user = await User.insert_one(user) # returns pymongo.results.InsertOneResult (contain only _id)
+        new_user = await User.insert_one(
+            user
+        )  # returns pymongo.results.InsertOneResult (contain only _id)
     except pymongo.errors.DuplicateKeyError:
-        raise HTTPException(status_code=409, detail=f"User with such email: {user['email']} already exists.")
+        raise HTTPException(
+            status_code=409,
+            detail=f"User with such email: {user['email']} already exists.",
+        )
     user = await User.find_one({"_id": new_user.inserted_id})
-    
+
     return user
 
 

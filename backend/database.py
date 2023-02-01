@@ -4,7 +4,7 @@ from config import settings
 
 
 client = AsyncIOMotorClient(settings.DATABASE_URL)
-print('Connected to MongoDB...')
+print("Connected to MongoDB...")
 
 db = client[settings.MONGO_INITDB_DATABASE]
 

@@ -8,15 +8,11 @@ from schemas.py_object_id import PyObjectId
 class UserBase(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     email: EmailStr | None = Field(example="email@email.com")
-    name: str = Field(
-        title="User Name", max_length=30, example="John"
-    )
-    surname: str = Field(
-        title="User Name", max_length=30, example="Kowalsky"
-    )
+    name: str = Field(title="User Name", max_length=30, example="John")
+    surname: str = Field(title="User Name", max_length=30, example="Kowalsky")
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
-    created_at: datetime | None = None  
+    created_at: datetime | None = None
     updated_at: datetime | None = None
 
     class Config:
@@ -34,12 +30,8 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str = Field(
-        title="User password", max_length=40
-    )
-    confirm_password: str = Field(
-        title="Confirm user password", max_length=40
-    )
+    password: str = Field(title="User password", max_length=40)
+    confirm_password: str = Field(title="Confirm user password", max_length=40)
 
     class Config:
         schema_extra = {
