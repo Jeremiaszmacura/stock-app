@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 from fastapi.exceptions import HTTPException
 
 from database import User
-from schemas.user import UserUpdate
+from schemas.user import UserUpdate, UserCreate
 
 
 async def get_users(skip: int = 0, limit: int = 100) -> list[dict]:
@@ -18,7 +18,8 @@ async def get_users(skip: int = 0, limit: int = 100) -> list[dict]:
 async def get_user(user_id: str) -> dict:
     user = await User.find_one({"_id": ObjectId(user_id)})
     if not user:
-        raise HTTPException(status_code=404, detail=f"User with id: {user_id} not found.")
+        raise HTTPException(
+            status_code=404, detail=f"User with id: {user_id} not found.")
     user["_id"] = str(user["_id"])
     return user
 
@@ -35,10 +36,11 @@ async def update_user(user_id: str, user: UserUpdate) -> dict:
     if (existing_student := await User.find_one({"_id": user_id})) is not None:
         existing_student["_id"] = str(existing_student["_id"])
         return existing_student
-    raise HTTPException(status_code=404, detail=f"User with id: {user_id} not found.")
+    raise HTTPException(
+        status_code=404, detail=f"User with id: {user_id} not found.")
 
 
-async def create_user(user: dict) -> dict:
+async def create_user(user: UserCreate) -> dict:
     try:
         new_user = await User.insert_one(
             user
@@ -56,6 +58,7 @@ async def create_user(user: dict) -> dict:
 async def delete_user(user_id: str) -> dict:
     user = await User.find_one_and_delete({"_id": ObjectId(user_id)})
     if not user:
-        raise HTTPException(status_code=404, detail=f"User with id: {user_id} not found.")
+        raise HTTPException(
+            status_code=404, detail=f"User with id: {user_id} not found.")
     user["_id"] = str(user["_id"])
     return user

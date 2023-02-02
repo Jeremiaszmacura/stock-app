@@ -75,3 +75,27 @@ http://127.0.0.1:8000/redoc
 ```text
 http://127.0.0.1:8000/openapi.json
 ```
+
+<hr />
+
+### Run linters
+
+<hr />
+
+Pylint
+
+```sh
+python -m pylint backend
+```
+
+Black check
+
+```sh
+python -m black --check backend
+```
+
+Black fix
+
+```sh
+python -m black backend
+```
