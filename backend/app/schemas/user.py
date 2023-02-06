@@ -1,8 +1,9 @@
+"""Module contains User pydantic schemas."""
 from datetime import datetime
 from bson.objectid import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 
-from schemas.py_object_id import PyObjectId
+from app.schemas.py_object_id import PyObjectId
 
 
 class UserBase(BaseModel):
@@ -32,6 +33,8 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(title="User password", max_length=40)
     confirm_password: str = Field(title="Confirm user password", max_length=40)
+    created_at: datetime | None = Field(default=datetime.now())
+    updated_at: datetime | None = Field(default=datetime.now())
 
     class Config:
         schema_extra = {
@@ -53,8 +56,7 @@ class UserUpdate(BaseModel):
     surname: str | None = Field(title="User Name", max_length=30, example="Kowalsky")
     is_active: bool | None = Field(default=True)
     is_superuser: bool | None = Field(default=False)
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    updated_at: datetime | None = Field(default=datetime.now())
     password: str | None = Field(title="User password", max_length=40)
     confirm_password: str | None = Field(title="Confirm user password", max_length=40)
 

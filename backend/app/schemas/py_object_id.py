@@ -1,3 +1,4 @@
+"""Module contains PyObjectId class used to convert ObjectId type."""
 from bson import ObjectId
 
 
