@@ -18,11 +18,8 @@ async def get_users(skip: int = 0, limit: int = 100) -> list[dict]:
 
 
 async def get_user_by_id(user_id: str) -> dict:
-    print(user_id)
-    print(bson.ObjectId(user_id))
     try:
         user = await User.find_one({"_id": bson.ObjectId(user_id)})
-        print(user)
     except bson.errors.InvalidId:
         raise HTTPException(status_code=400, detail=f"Passed invalid id: {user_id}.")
     if not user:
