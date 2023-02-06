@@ -88,7 +88,7 @@ disable=abstract-method,
         intern-builtin,
         invalid-str-codec,
         locally-disabled,
-        long-builtin,
+        long-builtin,F
         long-suffix,
         map-builtin-not-iterating,
         misplaced-comparison-constant,

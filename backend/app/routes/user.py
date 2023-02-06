@@ -1,10 +1,11 @@
-"""Endpoints for User collection."""
+"""Module contains endpoints for User collection."""
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import HTTPException
 
-from schemas.user import UserOut, UserCreate, UserUpdate
-from crud import user_crud
+from app.schemas.user import UserOut, UserCreate, UserUpdate
+from app.crud import user_crud
 
 
 router = APIRouter()
@@ -36,7 +37,7 @@ async def get_user(user_id: str) -> JSONResponse:
     Returns:
         JSONResponse: User return from databse.
     """
-    user = await user_crud.get_user(user_id)
+    user = await user_crud.get_user_by_id(user_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content=user)
 
 
@@ -50,7 +51,15 @@ async def create_students(user: UserCreate) -> JSONResponse:
     Returns:
         JSONResponse: Newly created user.
     """
-    user = jsonable_encoder(user)
+    user: dict = jsonable_encoder(user)
+    if user["password"] != user["confirm_password"]:
+        raise HTTPException(
+            status_code=400, detail=f"Password and confirm password are not the same."
+        )
+    try:
+        del user["confirm_password"]
+    except KeyError:
+        pass
     created_user = await user_crud.create_user(user)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_user)
 

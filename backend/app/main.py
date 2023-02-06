@@ -1,8 +1,9 @@
+"""Module contains Fastapi app instance with applied configurations and routes."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import settings
-from routes import user
+from app.config import settings
+from app.routes import user, auth
 
 app = FastAPI()
 
@@ -21,6 +22,7 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 app.include_router(user.router, tags=["Users"], prefix="/users")
+app.include_router(auth.router, tags=["Auth"], prefix="/auth")
 
 
 @app.get("/")

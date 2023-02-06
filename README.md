@@ -99,3 +99,27 @@ Black fix
 ```sh
 python -m black backend
 ```
+
+<hr />
+
+Dockerfile backend
+
+<hr />
+
+Build backend app
+
+```sh
+docker build -t stock_backend -f backend.dockerfile .
+```
+
+Run backend app
+
+```sh
+docker run -d --name stock_backend -p 80:80 stock_backend
+```
+
+App is avaiable under URL:
+
+```text
+http://127.0.0.1/:80
+```
