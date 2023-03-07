@@ -3,9 +3,9 @@ import pymongo
 import bson
 from fastapi.exceptions import HTTPException
 
-import app.security as security
-from app.database import User
-from app.schemas.user import UserUpdate, UserCreate
+import security as security
+from database import User
+from schemas.user import UserUpdate, UserCreate
 
 
 async def get_users(skip: int = 0, limit: int = 100) -> list[dict]:

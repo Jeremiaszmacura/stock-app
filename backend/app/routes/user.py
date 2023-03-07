@@ -4,8 +4,8 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
 
-from app.schemas.user import UserOut, UserCreate, UserUpdate
-from app.crud import user_crud
+from schemas.user import UserOut, UserCreate, UserUpdate
+from crud import user_crud
 
 
 router = APIRouter()

@@ -1,0 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.body {
+    display: flex;
+    flex-direction: row;
+    /* display: inline-block; */
+    text-align: center;
+    width: 30%;
+    margin: auto;
+    /* vertical-align: top; */
+    justify-content: center;
+    align-items: center;
+    min-height: 10vh;
+    flex-wrap: wrap;
+}
+
+.box {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    display: flex;
+    /* display: inline-block; */
+    /* justify-content: space-around; */
+    align-items: center;
+    background: #060c21;
+    margin: 20px;
+    border-radius: 5px;
+}
+
+.box:after {
+    content: '';
+    position: absolute;
+    border-radius: 5px;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #fff;
+    z-index: -1;
+}
+
+.box:before {
+    content: '';
+    position: absolute;
+    border-radius: 5px;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #fff;
+    z-index: -1;
+}
+
+.box:hover,
+.box:active {
+  background-color: #01061593;
+  border-color: #01061593;
+  transition: all 0.3s ease 0s;
+}
+
+.box:nth-child(1):before,
+.box:nth-child(1):after {
+    background: linear-gradient(235deg, rgba(0, 204, 255, 0.719), #010615, #00bcd4);
+}
+
+.box:nth-child(2):before,
+.box:nth-child(2):after {
+    background: linear-gradient(235deg, #ff005e, #010615, #fbff00);
+}
+
+.box:nth-child(3):before,
+.box:nth-child(3):after {
+    background: linear-gradient(235deg, #772aff, #010615, #2196F3);
+}
+
+.box .glass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+}
+
+.box .content {
+    width: 100%;
+    padding: 20px;
+    color: #fff;
+}
+
+.contentRow {
+    display: flex;
+    flex-direction: row;
+    /* flex-wrap: wrap; */
+    justify-content: flex-start;
+    padding: 0.5em 0;
+    /* width: 100%; */
+}
+
+.contentRow p {
+    display: flex;
+    justify-content: flex-start;
+    padding-right: 1em;
+}
+
+#symbol {
+    display: flex;
+    background-color: rgba(0, 204, 255, 0.719);
+    margin: -21px;
+    padding: 5px;
+    margin-bottom: 1px;
+    /* border: #010615; */
+    border-left: 2px solid rgba(0, 204, 255, 0.719);
+    border-radius: 5px 5px 0 0;
+    /* border: solid; */
+    justify-content: center;
+}
+
+.box:hover #symbol,
+.box:active #symbol {
+    background-color: #a50e48;
+    border-color: #a50e48;
+    transition: all 0.3s ease 0s;
+}

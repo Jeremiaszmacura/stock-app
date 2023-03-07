@@ -3,7 +3,7 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 
-from app.schemas.py_object_id import PyObjectId
+from schemas.py_object_id import PyObjectId
 
 
 class UserBase(BaseModel):

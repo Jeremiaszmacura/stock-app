@@ -2,12 +2,13 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from jose import JWTError, jwt
 
-import app.security as security
-from app.config import settings
-from app.crud import user_crud
-from app.schemas.token import Token, TokenData
+import security as security
+from config import settings
+from crud import user_crud
+from schemas.token import Token, TokenData
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -88,6 +89,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = security.create_access_token(
-        data={"sub": user["email"]}, expires_delta=access_token_expires
+        data={"username": user["email"], "name": user["name"], "surname": user["surname"], "is_superuser": user["is_superuser"]}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/logout")
+async def logout():
+    # TODO
+    print("Logout")
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "logout"})

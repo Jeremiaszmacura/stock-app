@@ -1,0 +1,17 @@
+.homePage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.homeTitle {
+  color: #ffffff;
+  font-size: 2em;
+  padding-bottom: 1em;
+}
+
+.wrap {
+    width: 40%;
+  }
+  

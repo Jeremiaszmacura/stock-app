@@ -2,8 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.routes import user, auth
+from config import settings
+from routes import user, auth, stock_data
 
 app = FastAPI()
 
@@ -23,6 +23,7 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(user.router, tags=["Users"], prefix="/users")
 app.include_router(auth.router, tags=["Auth"], prefix="/auth")
+app.include_router(stock_data.router, tags=["StockData"], prefix="/stock-data")
 
 
 @app.get("/")

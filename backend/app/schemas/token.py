@@ -9,3 +9,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None  # email
+    name: str | None = None
+    surname: str | None = None
+    is_superuser: bool | None = None

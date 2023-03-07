@@ -10,6 +10,7 @@ class Settings(BaseSettings):
         "https://localhost.tiangolo.com",
         "http://localhost",
         "http://localhost:8080",
+        "http://localhost:3000",
     ]
 
     DATABASE_URL: str
@@ -22,8 +23,10 @@ class Settings(BaseSettings):
 
     CLIENT_ORIGIN: str
 
+    ALPHA_VANTAGE_API_KEY: str
+
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
 
 
 settings = Settings()
