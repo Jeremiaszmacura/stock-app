@@ -1,10 +1,21 @@
+import { useNavigate } from 'react-router-dom';
+
 import styles from './SearchResultUnit.module.css';
 
 const SearchResultUnit = (props) => {
 
+    const navigate = useNavigate();
+
+    const selectHandler = (event) => {
+        event.preventDefault();
+
+        navigate('/company', { state: props });
+
+    }
+
     return (
         <div className={styles.body}>
-            <div className={styles.box}>
+            <div onClick={selectHandler} className={styles.box}>
                 <div className={styles.glass}></div>
                 <div className={styles.content}>
                 <p id={styles.symbol}>{props.symbol}</p>

@@ -7,6 +7,7 @@ import { UserContext, AdminContext } from '../../UserContext';
 const MainNavigation = () => {
 
     const { user, setUser } = useContext(UserContext);
+    // eslint-disable-next-line no-unused-vars
     const { admin, setAdmin } = useContext(AdminContext);
     const navigate = useNavigate();
 

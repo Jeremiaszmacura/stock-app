@@ -13,5 +13,13 @@
 
 .wrap {
     width: 40%;
-  }
-  
+}
+
+.searchNotFound {
+  padding-top: 2em;
+  font-size: 1.2em;
+}
+
+.searchNotFound p {
+  color: white;
+}

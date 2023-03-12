@@ -33,12 +33,11 @@ def plot_data(data: pd.DataFrame, meta: dict):
     ax.set_xlabel('time')
     ax.set_ylabel('value')
     ax.set_title(meta['2. Symbol'])
-    # plt.plot(data['4. close'])
     buf = BytesIO()
     fig.savefig(buf, format="png")
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return f"<img src='data:image/png;base64,{data}'/>"
     # plt.show()
+    return data
 
 
 @router.get("/", response_description="Stock data retrieved")
@@ -68,14 +67,16 @@ async def get_stock_data(symbol: str, interval: str | None = "daily") -> JSONRes
     data.columns = columns_names
     data['TradeDate'] = data.index.date
     data['time'] = data.index.time
-    print("dataaaaaaaaaaaaaaaaaaaaa")
-    print(type(data))
-    print(data)
-    print(data.info)
-    print("metaaaaaaaaaaaaaaaaaaaaa")
-    print(type(meta))
-    print(meta)
+    # print("dataaaaaaaaaaaaaaaaaaaaa")
+    # print(type(data))
+    # print(data)
+    # print(data.info)
+    # print("metaaaaaaaaaaaaaaaaaaaaa")
+    # print(type(meta))
+    # print(meta)
     image = plot_data(data, meta)
+    # data['plot'] = image
+    # data = data.to_json()
     return JSONResponse(status_code=status.HTTP_200_OK, content=image)
 
 
@@ -100,4 +101,6 @@ async def get_stock_data(symbol: str):
         company['timezone'] = company.pop('7. timezone')
         company['currency'] = company.pop('8. currency')
         company['matchScore'] = company.pop('9. matchScore')
+    if not data:
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"message": f"For phrase '{symbol}' company not found"})
     return JSONResponse(status_code=status.HTTP_200_OK, content=data)

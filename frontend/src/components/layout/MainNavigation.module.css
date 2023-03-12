@@ -13,6 +13,10 @@ li, a, button {
 }
 
 header {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -54,6 +58,7 @@ button {
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease 0s;
+  
 }
 
 button:hover,

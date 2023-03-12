@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import BaseCard from '../components/ui/BaseCard'
 import SearchBar from '../components/stock/SearchBar';
 import SearchResult from '../components/stock/SearchResult'
 import styles from './Home.module.css'
@@ -8,9 +7,14 @@ import styles from './Home.module.css'
 const HomePage = () => {
 
     const [searchResult, setSearchResult] = useState([]);
+    const [searchNotFound, setSearchNotFound] = useState('')
 
     const searchResultHandler = (searchData) => {
         setSearchResult(searchData)
+        if (searchData.message) {
+            console.log("hihi")
+            setSearchNotFound(searchData.message)
+        }
     }
 
     return (
@@ -23,6 +27,11 @@ const HomePage = () => {
             </div>
             {searchResult.length > 0 && 
                 <SearchResult searchResultData={searchResult} />
+            }
+            {searchNotFound.length > 0 &&
+                <div className={styles.searchNotFound}>
+                    <p>{searchNotFound}</p>
+                </div>
             }
         </div>
         

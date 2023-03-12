@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import HomePage from './pages/Home';
-import VARPage from './pages/VARPage';
+import VARPage from './pages/VAR';
+import CompanyPage from './pages/Company';
 import MyPortfolioPage from './pages/MyPortfolio';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
@@ -46,7 +47,9 @@ const App = () => {
               <Route path='/' exact element={<HomePage />}>
               </Route>    
               <Route path='/VAR' exact element={<VARPage />}>
-              </Route>     
+              </Route>
+              <Route path='/company' exact element={<CompanyPage />}>
+              </Route>
               <Route path='/MyPortfolio' exact element={<MyPortfolioPage />}>
               </Route>
               <Route path='/register' exact element={<RegisterPage />}>

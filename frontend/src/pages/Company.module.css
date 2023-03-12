@@ -1,0 +1,149 @@
+.companyPage {
+    display: flex;
+    flex-direction: column;
+}
+
+.overBaseCard {
+    margin: auto;
+    width: 50%;
+    margin-top: -1.5em;
+}
+
+.customSelect {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 1em;
+}
+
+.customSelect select {
+    background-color: rgba(0, 204, 255, 0.719);
+    border-radius: 20px;
+    color: white;
+    padding: 5px;
+    width: 200px;
+    text-align: center;
+    font-size: 1em;
+    margin-right: 1em;
+    border: solid 2px rgba(0, 204, 255, 0.719);
+}
+
+.customSelect select option {
+    margin: 40px;
+    border-style: solid;
+    background-color: rgba(2, 115, 143, 0.719);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4) !important  ;
+}
+
+.customSelect button {
+    border: solid 2px rgba(0, 204, 255, 0.719);
+}
+
+.contentRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    padding: 0.2em 0;
+}
+
+.contentRow p {
+    padding: 0 5px;
+}
+
+.contentRow .pTitle {
+    font-style: bold;
+    font-weight: 800;
+}
+
+.contentRow .pVariable {
+    font-style: italic;
+    font-weight: 200;
+}
+
+.plot {
+    display: flex;
+    justify-content: center;
+    padding: 1em;
+    
+}
+
+.plot img {
+    width: 100%;
+}
+
+.plotBox {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #060c21;
+    margin: 20px;
+}
+
+.plotBox:before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #fff;
+    z-index: -1;
+}
+
+.plotBox:after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #fff;
+    z-index: -1;
+}
+
+.plotBox:nth-child(1):before,
+.plotBox:nth-child(1):after {
+    background: linear-gradient(235deg, #89ff00, #010615, #00bcd4);
+}
+
+.plotBox:nth-child(2):before,
+.plotBox:nth-child(2):after {
+    background: linear-gradient(235deg, #ff005e, #010615, #fbff00);
+}
+
+.plotBox:nth-child(3):before,
+.plotBox:nth-child(3):after {
+    background: linear-gradient(235deg, #772aff, #010615, #2196F3);
+}
+
+.analyzeCompany {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.multiSelect {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 1em;
+}
+
+.multiSelectBox {
+    border: solid 2px rgba(0, 204, 255, 0.719);
+    background-color: rgba(0, 204, 255, 0.719);
+    padding: 0.5em 1em;
+    border-radius: 20px;
+}
+
+.multiSelect form {
+    color: white;
+}
+
+.multiSelect form label {
+    padding: 1em;
+}

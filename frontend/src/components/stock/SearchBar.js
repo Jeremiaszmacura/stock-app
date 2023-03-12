@@ -8,9 +8,15 @@ const SearchBar = (props) => {
 
     const [searchInput, setSearchInput] = useState('');
 
-    const handleChange = (e) => {
-        e.preventDefault();
-        setSearchInput(e.target.value);
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            searchHandler(event)
+        }
+    }
+
+    const handleChange = (event) => {
+        event.preventDefault();
+        setSearchInput(event.target.value);
       };
     
     const searchHandler = (event) => {
@@ -45,11 +51,12 @@ const SearchBar = (props) => {
 
     return (
         <div className={styles.search}>
-            <input 
+            <input
                 className={styles.searchTerm}
                 type="text"
                 placeholder="Company Name"
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 value={searchInput} />
             <button type="submit" className={styles.searchButton} onClick={searchHandler}>
                 <i className="fa fa-search"></i>
