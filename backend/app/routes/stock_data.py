@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from stock_api import ts
 import numpy as np
 
-from schemas.user import UserOut, UserCreate, UserUpdate
+from schemas.stock import GetStockData
 
 
 STOCK_DATA_INTERVALS = ['1min', '5min', '15min', '30min', '60min', 'daily', 'weekly', 'monthly']
@@ -40,10 +40,24 @@ def plot_data(data: pd.DataFrame, meta: dict):
     return data
 
 
-@router.get("/", response_description="Stock data retrieved")
-async def get_stock_data(symbol: str, interval: str | None = "daily") -> JSONResponse:
+def calculate_value_at_risk():
+    # TODO
+    print("calculate_value_at_risk")
+
+
+def calculate_hurst_exponent():
+    # TODO
+    print("calculate_hurst_exponent")
+
+# req_data: dict[Any, Any]
+@router.post("/", response_description="Stock data retrieved")
+async def get_stock_data(req_data: GetStockData) -> JSONResponse:
+    print(req_data)
     data: pd.DataFrame
     meta: dict
+    req_data: dict = jsonable_encoder(req_data)
+    symbol = req_data['symbol']
+    interval = req_data['interval']
     if interval not in STOCK_DATA_INTERVALS:
         raise HTTPException(
             status_code=400, detail="incorrect interval value."
@@ -67,6 +81,11 @@ async def get_stock_data(symbol: str, interval: str | None = "daily") -> JSONRes
     data.columns = columns_names
     data['TradeDate'] = data.index.date
     data['time'] = data.index.time
+    for statistic in req_data['calculate']:
+        if statistic == 'var':
+            calculate_value_at_risk()
+        if statistic == 'hurst':
+            calculate_hurst_exponent()
     # print("dataaaaaaaaaaaaaaaaaaaaa")
     # print(type(data))
     # print(data)

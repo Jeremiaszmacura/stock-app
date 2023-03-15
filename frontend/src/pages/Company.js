@@ -23,16 +23,19 @@ const CompanyPage = () => {
         if (!selectedInterval) {
             return
         }
+        const CompanySearchData = {
+            symbol: symbol,
+            interval: selectedInterval,
+            calculate: [valueAtRisk, hurstExponent]
+        }
         fetch(
-            'http://localhost:8000/stock-data?' + new URLSearchParams({
-                symbol: symbol,
-                interval: selectedInterval,             
-            }),
+            'http://localhost:8000/stock-data/',
             {
-                method: 'GET',
+                method: 'POST',
                 headers: {
-                    'Accept': 'application/json'
+                    'Content-Type': 'application/json'
                 },
+                body: JSON.stringify(CompanySearchData)
             }
         )
         .then(res => {
@@ -42,9 +45,7 @@ const CompanyPage = () => {
                 console.log('[CLIENT] login - fetch NOT successful');
             }
             res.json().then((data) => {
-                // console.log("elo")
-                // console.log(data)
-                setCompanyResult(data);
+                setCompanyResult(data); 
             });
         }).catch(err => {
             console.log(err);
