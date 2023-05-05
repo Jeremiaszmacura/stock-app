@@ -84,8 +84,9 @@ def historical_simulation_var(
     sorted_returns = np.sort(returns)
     percentile = 1 - confidence_level
     index = int(percentile * len(sorted_returns))
-    worst_portfolio_value = sorted_returns[index] * portfolio_value * np.sqrt(horizon_days)
-    var = portfolio_value - worst_portfolio_value
+    worst_portfolio_value = sorted_returns[index] * portfolio_value
+    print(worst_portfolio_value)
+    var = (portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
     return var
 
 
