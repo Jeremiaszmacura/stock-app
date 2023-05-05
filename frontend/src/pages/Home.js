@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import SearchBar from '../components/stock/SearchBar';
 import SearchResult from '../components/stock/SearchResult'
+
 import styles from './Home.module.css'
 
 const HomePage = () => {

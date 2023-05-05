@@ -186,16 +186,16 @@ async def get_stock_data(req_data: GetStockData) -> JSONResponse:
         )
     data = prepare_data(data, interval)
     plot = plot_data(data, meta)
+    res_data = {
+        "plot": plot
+    }
     for statistic in req_data['calculate']:
         if statistic == 'var':
             var = calculate_value_at_risk(var_type, data, confidence_level, portfolio_value, historical_days, horizon_days)
+            res_data["var"] = var   
         if statistic == 'hurst':
             calculate_hurst_exponent()
-    # res_data = [plot, var]
-    res_data = json.dumps({
-        "plot": plot,
-        "var": var,
-    })
+    res_data = json.dumps(res_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
 
 

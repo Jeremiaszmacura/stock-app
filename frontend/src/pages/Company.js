@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import BaseCard from '../components/ui/BaseCard'
 import styles from './Company.module.css'
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 
 const CompanyPage = () => {
@@ -24,16 +25,22 @@ const CompanyPage = () => {
     const [varHorizonDays, setVarHorizonDays] = useState(defaultVarHorizonDays);
     const [varPortfloioValue, setVarPortfloioValue] = useState(defaultPortfloioValue);
     const [varConfidenceLevel, setVarConfidenceLevel] = useState(defaultConfidenceLevel);
-    const [companySearchData, setCompanySearchData] = useState('')
+    const [companySearchData, setCompanySearchData] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const selectInterval = (event) => {
         setSelectedInterval(event.target.value)
     }
 
     const intervalSearchHandler = (event) => {
-        console.log("elo")
+        setCompanyResultPlot(null);
+        setCompanyResultVar(null);
+        setIsLoading(true);
         event.preventDefault();
-        if (!selectedInterval || !varType) {
+        if (!selectedInterval) {
+            return
+        }
+        if ( valueAtRisk && !varType) {
             return
         }
         const CompanySearchData = {
@@ -47,6 +54,7 @@ const CompanyPage = () => {
             horizon_days: Number(varHorizonDays),
         }
         setCompanySearchData(CompanySearchData)
+        console.log(CompanySearchData)
         fetch(
             'http://localhost:8000/stock-data/',
             {
@@ -65,17 +73,19 @@ const CompanyPage = () => {
             }
             res.json().then((data) => {
                 data = JSON.parse(data)
+                setIsLoading(false);
                 setCompanyResultPlot(data['plot']);
                 setCompanyResultVar(data['var'].toFixed(2));
             });
         }).catch(err => {
             console.log(err);
+            setIsLoading(false);
         });
     }
 
     const handleChangeVAR = (event) => {
         if(valueAtRisk) {
-            setValueAtRisk(null)
+            setValueAtRisk('')
             event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.116)';
         }
         else {
@@ -86,7 +96,7 @@ const CompanyPage = () => {
 
     const handleChangeHurst = (event) => {
         if(hurstExponent) {
-            setHurstExponent(null)
+            setHurstExponent('')
             event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.116)';
         }
         else {
@@ -195,6 +205,7 @@ const CompanyPage = () => {
                 </div>
             </div>
             </div>
+            { isLoading && <LoadingSpinner /> }
                 {companyResultVar &&
                     <div className={styles.varResult}>
                         <BaseCard>
