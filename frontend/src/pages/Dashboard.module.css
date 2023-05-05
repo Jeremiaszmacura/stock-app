@@ -1,0 +1,64 @@
+.dashboardPage {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.accountDetails {
+    padding: 2em;
+}
+
+.accountDetails h1 {
+    text-align: center;
+    padding-bottom: 0.5em;
+}
+
+.customInputSection {
+    display: flex;
+    flex-direction: column
+}
+
+.customInput {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5em 0.5em 1em 0.5em;
+}
+
+.customInput label{
+    margin: 0 auto;
+    color: #fff;
+    width: 10em;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0.2em;
+}
+
+.customInput input {
+    background: rgba(255, 255, 255, .1); 
+    display: block;
+    margin: 0 auto;
+    font: inherit;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 0.25rem;
+    color: #ccc;
+    width: 12em;
+}
+
+#emailInput {
+    width: 18em;
+}
+
+#selectButtonAdd {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1em;
+}
+
+#selectButtonAdd button {
+    padding: 0.5em;
+    width: 7em;
+    /* width: 12em; */
+    /* margin: auto; */
+}

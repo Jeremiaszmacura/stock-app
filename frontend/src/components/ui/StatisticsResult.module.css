@@ -14,8 +14,8 @@
 
 .box {
     position: relative;
-    width: 40%;
-    height: 40%;
+    width: 80%;
+    height: 80%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -43,7 +43,6 @@
     bottom: -2px;
     background: #fff;
     z-index: -1;
-    filter: blur(1em);
 }
 
 .box:nth-child(1):before,
@@ -72,6 +71,6 @@
 }
 
 .box .content {
-    padding: 10px 20px;
+    padding: 20px;
     color: #fff;
 }

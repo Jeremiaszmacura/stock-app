@@ -5,6 +5,7 @@ import HomePage from './pages/Home';
 import VARPage from './pages/VAR';
 import CompanyPage from './pages/Company';
 import MyPortfolioPage from './pages/MyPortfolio';
+import DashboardPage from './pages/Dashboard';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
 import Layout from './components/layout/Layout';
@@ -25,15 +26,15 @@ const App = () => {
     const userFromStorage = localStorage.getItem("userInStorage");
     const roleFromStorage = localStorage.getItem("roleInStorage");
     if (tokenInStorage) {
-      const tokenInStorageParsed = JSON.parse(tokenInStorage)
+      const tokenInStorageParsed = JSON.stringify(tokenInStorage)
       setUser(tokenInStorageParsed);
   }
     if (userFromStorage) {
-        const userFromStorageParsed = JSON.parse(userFromStorage)
+        const userFromStorageParsed = JSON.stringify(userFromStorage)
         setUser(userFromStorageParsed);
     }
     if (roleFromStorage) {
-        const roleFromStorageParsed = JSON.parse(roleFromStorage)
+        const roleFromStorageParsed = JSON.stringify(roleFromStorage)
         setAdmin(roleFromStorageParsed);
     }
   }, []);
@@ -51,6 +52,8 @@ const App = () => {
               <Route path='/company' exact element={<CompanyPage />}>
               </Route>
               <Route path='/MyPortfolio' exact element={<MyPortfolioPage />}>
+              </Route>
+              <Route path='/dashboard' exact element={<DashboardPage />}>
               </Route>
               <Route path='/register' exact element={<RegisterPage />}>
               </Route>  

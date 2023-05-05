@@ -7,27 +7,46 @@ import styles from './Company.module.css'
 
 const CompanyPage = () => {
 
+    const defaultVarHistoricalDays = 200
+    const defaultVarHorizonDays = 1
+    const defaultPortfloioValue = 1000
+    const defaultConfidenceLevel = 99
+
     const { state } = useLocation();
     const { symbol, name, type, region, marketOpen, marketClose, timezone, currency, matchScore } = state;
-    const [companyResult, setCompanyResult] = useState('');
+    const [companyResultPlot, setCompanyResultPlot] = useState('');
+    const [companyResultVar, setCompanyResultVar] = useState('');
     const [selectedInterval, setSelectedInterval] = useState('');
     const [valueAtRisk, setValueAtRisk] = useState('');
     const [hurstExponent, setHurstExponent] = useState('');
+    const [varType, setVarType] = useState('');
+    const [varHistoricalDays, setVarHistoricalDays] = useState(defaultVarHistoricalDays);
+    const [varHorizonDays, setVarHorizonDays] = useState(defaultVarHorizonDays);
+    const [varPortfloioValue, setVarPortfloioValue] = useState(defaultPortfloioValue);
+    const [varConfidenceLevel, setVarConfidenceLevel] = useState(defaultConfidenceLevel);
+    const [companySearchData, setCompanySearchData] = useState('')
 
     const selectInterval = (event) => {
         setSelectedInterval(event.target.value)
     }
 
     const intervalSearchHandler = (event) => {
+        console.log("elo")
         event.preventDefault();
-        if (!selectedInterval) {
+        if (!selectedInterval || !varType) {
             return
         }
         const CompanySearchData = {
-            symbol: symbol,
-            interval: selectedInterval,
-            calculate: [valueAtRisk, hurstExponent]
+            symbol: String(symbol),
+            interval: String(selectedInterval),
+            calculate: [valueAtRisk, hurstExponent],
+            var_type: String(varType),
+            portfolio_value: Number(varPortfloioValue),
+            confidence_level: Number(varConfidenceLevel/100),
+            historical_days: Number(varHistoricalDays),
+            horizon_days: Number(varHorizonDays),
         }
+        setCompanySearchData(CompanySearchData)
         fetch(
             'http://localhost:8000/stock-data/',
             {
@@ -45,15 +64,40 @@ const CompanyPage = () => {
                 console.log('[CLIENT] login - fetch NOT successful');
             }
             res.json().then((data) => {
-                setCompanyResult(data); 
+                data = JSON.parse(data)
+                setCompanyResultPlot(data['plot']);
+                setCompanyResultVar(data['var'].toFixed(2));
             });
         }).catch(err => {
             console.log(err);
         });
     }
 
+    const handleChangeVAR = (event) => {
+        if(valueAtRisk) {
+            setValueAtRisk(null)
+            event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.116)';
+        }
+        else {
+            event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.719)';
+            setValueAtRisk(event.target.value)
+        }
+    }
+
+    const handleChangeHurst = (event) => {
+        if(hurstExponent) {
+            setHurstExponent(null)
+            event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.116)';
+        }
+        else {
+            event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.719)';
+            setHurstExponent(event.target.value)
+        }
+    }
+
     return (
         <div className={styles.companyPage}>
+            <div className={styles.companyOptions}>
             <div className={styles.overBaseCard}>
                 <BaseCard>
                     <div className={styles.contentRow}>
@@ -94,7 +138,6 @@ const CompanyPage = () => {
                     </div>
                 </BaseCard>
             </div>
-
             <div className={styles.analyzeCompany}>
                 <div className={styles.customSelect}>
                     <select onChange={selectInterval} defaultValue={''}>
@@ -108,25 +151,75 @@ const CompanyPage = () => {
                         <option value="weekly">weekly</option>
                         <option value="monthly">monthly</option>
                     </select>
-                    <button onClick={intervalSearchHandler}>Select</button>
                 </div>
-
                 <div className={styles.multiSelect}>
                     <div className={styles.multiSelectBox}>
-                        <form>
-                            <input onChange={e => setValueAtRisk(e.target.value)} type="checkbox" id="var" name="var" value="var"/>
-                            <label htmlFor="var">Value at Risk</label>
-                            <input onChange={e => setHurstExponent(e.target.value)} type="checkbox" id="hurst" name="hurst" value="hurst"/>
-                            <label htmlFor="hurst">Hurst Exponent</label>
-                        </form>
+                        <button id={styles.var} onClick={handleChangeVAR} value="var">Value at Risk</button>
+                    </div>
+                    <div className={styles.multiSelectBox}>
+                        <button id={styles.hurst} onClick={handleChangeHurst} value="hurst">Hurst Exponent</button>
                     </div>
                 </div>
+                { valueAtRisk &&
+                <div>
+                    <div className={styles.customSelect}>
+                        <select onChange={e => setVarType(e.target.value)} defaultValue={''}>
+                            <option hidden value="" disabled>VaR type</option>
+                            <option value="historical">historical simulation</option>
+                            <option value="linear_model">linear model simulation</option>
+                            <option value="monte_carlo">monte carlo simulation</option>
+                        </select>
+                    </div>
+                    <div className={styles.customInputSection}>
+                        <div className={styles.customInput}>
+                            <label htmlFor='varHistoricalDays'>VaR historical days</label>
+                            <input type='number' min="10" max="10000" defaultValue={defaultVarHistoricalDays} onChange={e => setVarHistoricalDays(e.target.value)} required id='varHistoricalDays' />
+                        </div>
+                        <div className={styles.customInput}>
+                            <label htmlFor='varHorizonDays'>VaR horizon in days</label>
+                            <input type='number' min="10" max="10000" defaultValue={defaultVarHorizonDays} onChange={e => setVarHorizonDays(e.target.value)} required id='varHorizonDays' />
+                        </div>
+                        <div className={styles.customInput}>
+                            <label htmlFor='varHorizonDays'>Portfolio value</label>
+                            <input type='number' min="10" max="1000000000" defaultValue={defaultPortfloioValue} onChange={e => setVarPortfloioValue(e.target.value)} required id='varPortfloioValue' />
+                        </div>
+                        <div className={styles.customInput}>
+                            <label htmlFor='varHorizonDays'>Confidence level %</label>
+                            <input type='number' min="1" max="99" defaultValue={defaultConfidenceLevel} onChange={e => setVarConfidenceLevel(e.target.value)} required id='varConfidenceLevel' />
+                        </div>
+                    </div>  
+                </div>
+                }
+                <div id={styles.selectButton}>
+                    <button onClick={intervalSearchHandler}>Select</button>
+                </div>
             </div>
-            
-                {companyResult && 
-                    <div className={styles.plot}>
-                        <div className={styles.plotBox}>
-                            <img src={`data:image/png;base64,${companyResult}`} alt='Plot'/>
+            </div>
+                {companyResultVar &&
+                    <div className={styles.varResult}>
+                        <BaseCard>
+                            <div className={styles.varResultParameters}>
+                                <p>Portfolio value:</p>
+                                <p>VaR method:</p>
+                                <p>Confidence level:</p>
+                                <p>Historical days:</p>
+                                <p>Time horizon:</p>
+                                <p>{companySearchData.portfolio_value}</p>
+                                <p>{companySearchData.var_type}</p>
+                                <p>{companySearchData.confidence_level*100}%</p>
+                                <p>{companySearchData.historical_days}</p>
+                                <p>{companySearchData.horizon_days} days</p>
+                            </div>
+                            <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
+                        </BaseCard>
+                    </div>
+                }
+                {companyResultPlot &&
+                    <div>
+                        <div className={styles.plot}>
+                            <div className={styles.plotBox}>
+                                <img src={`data:image/png;base64,${companyResultPlot}`} alt='Plot'/>
+                            </div>
                         </div>
                     </div>
                 }

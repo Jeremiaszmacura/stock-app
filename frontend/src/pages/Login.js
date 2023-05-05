@@ -41,6 +41,7 @@ const LoginPage = () => {
                 if (data.access_token) {
                     const token = data.access_token;
                     const userData = jwt(token)
+                    console.log(userData)
                     setToken(token);
                     setUser(userData);
                     if (userData.is_superuser === true) setAdmin(true);

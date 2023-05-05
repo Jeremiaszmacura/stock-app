@@ -43,6 +43,7 @@
     bottom: -2px;
     background: #fff;
     z-index: -1;
+    filter: blur(1em);
 }
 
 .box:nth-child(1):before,

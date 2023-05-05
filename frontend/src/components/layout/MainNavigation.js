@@ -47,12 +47,15 @@ const MainNavigation = () => {
                         <Link className={styles.a} to='/'>Home</Link>
                     </li>
                     <li>
-                        <Link className={styles.a} to='/VAR'>VAR</Link>
+                        <Link className={styles.a} to='/VAR'>About VaR</Link>
                     </li>   
             {user ? (
                 <>
                 <li>
                     <Link className={styles.a} to='/MyPortfolio'>My Portfolio</Link>
+                </li>
+                <li>
+                    <Link className={styles.a} to='/dashboard'>Dashboard</Link>
                 </li>
                 <Link onClick={ () => {logOut(); setUser(null); setAdmin(null)} } to={'/'} ><button>Logout</button></Link>
                 </>
