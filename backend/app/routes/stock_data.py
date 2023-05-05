@@ -85,7 +85,6 @@ def historical_simulation_var(
     percentile = 1 - confidence_level
     index = int(percentile * len(sorted_returns))
     worst_portfolio_value = sorted_returns[index] * portfolio_value
-    print(worst_portfolio_value)
     var = (portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
     return var
 
@@ -141,45 +140,7 @@ def calculate_value_at_risk(
         portfolio_value,
         var,
     )
-    print(res)
     return var
-
-
-@router.get("/test")
-async def get_stock_data() -> JSONResponse:
-    print("hi")
-    data = test()
-    var_type = "linear_model"
-    confidence_level = 0.99
-    portfolio_value = 1000000
-    horizon_days = 1
-    historical_days = 200
-    res = calculate_value_at_risk(
-        var_type, data, confidence_level, portfolio_value, historical_days, horizon_days
-    )
-    return JSONResponse(status_code=status.HTTP_200_OK, content=res)
-
-
-def test():
-    data: pd.DataFrame
-    meta: dict
-    symbol = "INTC"
-    interval = "daily"
-    if interval not in STOCK_DATA_INTERVALS:
-        raise HTTPException(status_code=400, detail="incorrect interval value.")
-    try:
-        if interval == "monthly":
-            data, meta = ts.get_monthly(symbol=symbol)
-        elif interval == "weekly":
-            data, meta = ts.get_weekly(symbol=symbol)
-        elif interval == "daily":
-            data, meta = ts.get_daily_adjusted(symbol=symbol, outputsize="full")
-        else:
-            data, meta = ts.get_intraday(symbol=symbol, interval=interval, outputsize="full")
-    except ValueError as ex:
-        raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
-    data = prepare_data(data, interval)
-    return data
 
 
 def calculate_hurst_exponent():

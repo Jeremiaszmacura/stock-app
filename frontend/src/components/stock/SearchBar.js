@@ -26,6 +26,7 @@ const SearchBar = (props) => {
         if (!searchInput) {
             return
         }
+        props.onSearchResult(false);
         setIsLoading(true);
         fetch(
             'http://localhost:8000/stock-data/search?' + new URLSearchParams({

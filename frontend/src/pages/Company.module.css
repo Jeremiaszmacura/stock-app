@@ -250,3 +250,14 @@
     border: solid 2px rgba(0, 204, 255, 0.719);
     background-color: rgba(0, 204, 255, 0.719);
 }
+
+.errorMessageContainer {
+    display: flex;
+    justify-content: center;
+    padding-top: 2em;
+    font-size: 1.5em;
+}
+
+.errorMessageContainer p {
+    color: white;
+}

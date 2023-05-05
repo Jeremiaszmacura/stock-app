@@ -27,26 +27,34 @@ const CompanyPage = () => {
     const [varConfidenceLevel, setVarConfidenceLevel] = useState(defaultConfidenceLevel);
     const [companySearchData, setCompanySearchData] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
 
     const selectInterval = (event) => {
-        setSelectedInterval(event.target.value)
+        setSelectedInterval(event.target.value);
     }
 
     const intervalSearchHandler = (event) => {
         setCompanyResultPlot(null);
         setCompanyResultVar(null);
+        setErrorMessage(false)
         setIsLoading(true);
         event.preventDefault();
+        console.log(valueAtRisk)
+        console.log(varType)
         if (!selectedInterval) {
-            return
+            setIsLoading(false);
+            setErrorMessage("Please select Time Interval");
+            return;
         }
         if ( valueAtRisk && !varType) {
-            return
+            setIsLoading(false);
+            setErrorMessage("Please select VaR type");
+            return;
         }
         const CompanySearchData = {
             symbol: String(symbol),
             interval: String(selectedInterval),
-            calculate: [valueAtRisk, hurstExponent],
+            calculate: Array(valueAtRisk, hurstExponent),
             var_type: String(varType),
             portfolio_value: Number(varPortfloioValue),
             confidence_level: Number(varConfidenceLevel/100),
@@ -206,24 +214,29 @@ const CompanyPage = () => {
             </div>
             </div>
             { isLoading && <LoadingSpinner /> }
-                {companyResultVar &&
-                    <div className={styles.varResult}>
-                        <BaseCard>
-                            <div className={styles.varResultParameters}>
-                                <p>Portfolio value:</p>
-                                <p>VaR method:</p>
-                                <p>Confidence level:</p>
-                                <p>Historical days:</p>
-                                <p>Time horizon:</p>
-                                <p>{companySearchData.portfolio_value}</p>
-                                <p>{companySearchData.var_type}</p>
-                                <p>{companySearchData.confidence_level*100}%</p>
-                                <p>{companySearchData.historical_days}</p>
-                                <p>{companySearchData.horizon_days} days</p>
-                            </div>
-                            <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
-                        </BaseCard>
-                    </div>
+            { errorMessage && 
+            <div className={styles.errorMessageContainer}>
+                <p>{errorMessage}</p>
+            </div>
+            }
+            {companyResultVar &&
+                <div className={styles.varResult}>
+                    <BaseCard>
+                        <div className={styles.varResultParameters}>
+                            <p>Portfolio value:</p>
+                            <p>VaR method:</p>
+                            <p>Confidence level:</p>
+                            <p>Historical days:</p>
+                            <p>Time horizon:</p>
+                            <p>{companySearchData.portfolio_value}</p>
+                            <p>{companySearchData.var_type}</p>
+                            <p>{companySearchData.confidence_level*100}%</p>
+                            <p>{companySearchData.historical_days}</p>
+                            <p>{companySearchData.horizon_days} days</p>
+                        </div>
+                        <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
+                    </BaseCard>
+                </div>
                 }
                 {companyResultPlot &&
                     <div>
