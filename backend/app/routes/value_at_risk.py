@@ -15,5 +15,5 @@
 
 # @router.get("/", response_description="Users retrieved", response_model=list[UserOut])
 # async def get_users(skip: int = 0, limit: int = 100) -> JSONResponse:
-    
+
 #     return JSONResponse(status_code=status.HTTP_200_OK, content={})

@@ -27,9 +27,10 @@ app.include_router(auth.router, tags=["Auth"], prefix="/auth")
 app.include_router(stock_data.router, tags=["StockData"], prefix="/stock-data")
 
 
-@app.get('/favicon.ico', include_in_schema=False)
+@app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return FileResponse("../favicon.png")
+
 
 @app.get("/")
 async def root():
