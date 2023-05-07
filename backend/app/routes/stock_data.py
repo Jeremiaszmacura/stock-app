@@ -3,18 +3,24 @@ import base64
 import requests
 import json
 from io import BytesIO
+from typing import Annotated
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 import pandas as pd
 import matplotlib.pyplot as plt
 from stock_api import ts
 import numpy as np
 from scipy.stats import norm
+from pydantic import parse_obj_as
 
 from schemas.stock import GetStockData
+from schemas.user import UserOut, UserCreate, UserUpdate
+from security import get_current_active_user, oauth2_scheme, get_current_user
+from crud import user_crud
 
 
 STOCK_DATA_INTERVALS = ["1min", "5min", "15min", "30min", "60min", "daily", "weekly", "monthly"]
@@ -149,11 +155,21 @@ def calculate_hurst_exponent():
 
 
 @router.post("/", response_description="Stock data retrieved")
-async def get_stock_data(req_data: GetStockData) -> JSONResponse:
-    print(req_data)
+async def get_stock_data(req_data: GetStockData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
+    # Check if user is logged in
+    user = None
+    try:
+        user = await get_current_user(token)
+    except HTTPException as error:
+        if error.status_code == 401:
+            user_availability = False
+        else:
+            user_availability = True
+    
     data: pd.DataFrame
     meta: dict
     req_data: dict = jsonable_encoder(req_data)
+    print(req_data)
     symbol = req_data["symbol"]
     interval = req_data["interval"]
     if "var" in req_data["calculate"]:
@@ -187,12 +203,32 @@ async def get_stock_data(req_data: GetStockData) -> JSONResponse:
             res_data["var"] = var
         if statistic == "hurst":
             calculate_hurst_exponent()
+    
+    # Add Analyse data to history of current loged in user
+    if user:
+        user = jsonable_encoder(parse_obj_as(UserOut, user))
+        analysed: dict = req_data | res_data
+        print(user)
+        print(type(user))
+        print(type(user["analysis_history"]))
+        user["analysis_history"].append(analysed)
+        await user_crud.update_user(user["_id"], user)    
+    
     res_data = json.dumps(res_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
 
 
 @router.get("/search", response_description="Stock data retrieved")
-async def get_stock_data(symbol: str):
+async def get_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
+    user = None
+    try:
+        user = await get_current_user(token)
+    except HTTPException as error:
+        if error.status_code == 401:
+            user_availability = False
+    if user:
+        user_availability = True
+    
     try:
         url = f"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey=D6Q2O1GZ0MZO4FO0"
         r: requests.Response = requests.get(url)
@@ -200,10 +236,12 @@ async def get_stock_data(symbol: str):
         data: list = data["bestMatches"]
     except KeyError:
         raise HTTPException(status_code=400, detail=f"incorrect symbol value.")
+    
     if not data:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={"message": f"For phrase '{symbol}' company not found"},
         )
     data: list[dict] = prepare_search_data(data)
-    return JSONResponse(status_code=status.HTTP_200_OK, content=data)
+    
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"data": data, "user_availability": user_availability})

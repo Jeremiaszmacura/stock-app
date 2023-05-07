@@ -35,15 +35,16 @@ const SearchBar = (props) => {
             {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Authorization': "Bearer " + localStorage.getItem('tokenInStorage'),
                 },
             }
         )
         .then(res => {
             if (res.ok) {
-                console.log('[CLIENT] login - fetch successful');
+                console.log('[CLIENT] search - fetch successful');
             } else {
-                console.log('[CLIENT] login - fetch NOT successful');
+                console.log('[CLIENT] search - fetch NOT successful');
             }
             res.json().then((data) => {
                 setIsLoading(false);

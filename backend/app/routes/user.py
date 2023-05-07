@@ -1,9 +1,15 @@
 """Module contains endpoints for User collection."""
+import json
+from datetime import timedelta
+
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
+from pydantic import parse_obj_as
 
+import security as security
+from config import settings
 from schemas.user import UserOut, UserCreate, UserUpdate
 from crud import user_crud
 
@@ -27,8 +33,23 @@ async def get_users(skip: int = 0, limit: int = 100) -> JSONResponse:
     return JSONResponse(status_code=status.HTTP_200_OK, content=users)
 
 
+@router.get("/by-email/{email}", response_description="User retrieved", response_model=UserOut)
+async def get_user_by_email(email: str) -> JSONResponse:
+    """Endpoint returns selected user by email from database.
+
+    Args:
+        email (str): User email.
+
+    Returns:
+        JSONResponse: User return from databse.
+    """
+    user = await user_crud.get_user_by_email(email)
+    user = jsonable_encoder(parse_obj_as(UserOut, user))
+    return JSONResponse(status_code=status.HTTP_200_OK, content=user)
+
+
 @router.get("/{user_id}", response_description="User retrieved", response_model=UserOut)
-async def get_user(user_id: str) -> JSONResponse:
+async def get_user_by_id(user_id: str) -> JSONResponse:
     """Endpoint returns selected user by id from database.
 
     Args:
@@ -77,7 +98,19 @@ async def update_user(user_id: str, user: UserUpdate) -> JSONResponse:
     """
     user = jsonable_encoder(user)
     user = await user_crud.update_user(user_id, user)
-    return JSONResponse(status_code=status.HTTP_200_OK, content=user)
+    user = jsonable_encoder(parse_obj_as(UserOut, user))
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        data={
+            "id": user["_id"],
+            "username": user["email"],
+            "name": user["name"],
+            "surname": user["surname"],
+            "is_superuser": user["is_superuser"],
+        },
+        expires_delta=access_token_expires,
+    )
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"data": user, "access_token": access_token, "token_type": "bearer"})
 
 
 @router.delete("/{user_id}", response_description="User deleted", response_model=UserOut)

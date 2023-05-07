@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 
 from schemas.py_object_id import PyObjectId
+from schemas.stock import GetStockData
 
 
 class UserBase(BaseModel):
@@ -13,8 +14,7 @@ class UserBase(BaseModel):
     surname: str = Field(title="User Name", max_length=30, example="Kowalsky")
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    analysis_history: list[GetStockData] = Field(default=[])
 
     class Config:
         orm_mode = True
@@ -59,6 +59,7 @@ class UserUpdate(BaseModel):
     updated_at: datetime | None = Field(default=datetime.now())
     password: str | None = Field(title="User password", max_length=40)
     confirm_password: str | None = Field(title="Confirm user password", max_length=40)
+    analysis_history: list[GetStockData] | None = Field(default=[])
 
     class Config:
         arbitrary_types_allowed = True

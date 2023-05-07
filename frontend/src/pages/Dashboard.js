@@ -1,4 +1,5 @@
-import { useContext, useState } from 'react';
+import { useEffect, useState } from 'react';
+import jwt from 'jwt-decode'
 
 import BaseCard from '../components/ui/BaseCard'
 import styles from './Dashboard.module.css'
@@ -11,9 +12,79 @@ const DashboardPage = () => {
     const [newName, setNewName] = useState(null);
     const [newSurname, setNewSurname] = useState(null);
     const [newUsername, setNewUsername] = useState(null);
+    const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+            console.log(userInStorage.username)
+        fetch(
+            encodeURI(`http://localhost:8000/users/by-email/${userInStorage.username}`),
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }
+        )
+        .then(res => {
+            if (res.ok) {
+                console.log('[CLIENT] fetch successful');
+            } else {
+                console.log(res);
+            }
+            res.json().then((data) => {
+                data = JSON.stringify(data);
+                setUserData(data);
+            });
+        }).catch(err => {
+            console.log(err);
+        });
+    })
 
     const updateUser = (event) => {
-        console.log("hi")
+        console.log(userInStorage.id)
+        let updateUserData = {};
+        if(userInStorage.name !== newName) {
+            updateUserData["name"] = newName
+        }
+        if(userInStorage.surname !== newName) {
+            updateUserData["surname"] = newSurname
+        }
+        if(userInStorage.username !== newName) {
+            updateUserData["username"] = newUsername
+        }
+        if(Object.keys(updateUserData).length) {
+            setIsLoading(true);
+            fetch(
+                `http://localhost:8000/users/${userInStorage.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateUserData)
+                }
+            )
+            .then(res => {
+                if (res.ok) {
+                    console.log('[CLIENT] fetch successful');
+                } else {
+                    console.log(res);
+                }
+                res.json().then((data) => {
+                    const token = data.access_token;
+                    const userData = jwt(token)
+                    localStorage.setItem('tokenInStorage', token);
+                    localStorage.setItem('userInStorage', JSON.stringify(userData));
+                    data = JSON.stringify(data)
+                    console.log(data)
+                    setIsLoading(false);
+                });
+            }).catch(err => {
+                console.log(err);
+                setIsLoading(false);
+            });
+        }
     }
 
     return (

@@ -45,13 +45,13 @@ async def get_user_by_email(user_email: str) -> dict:
 async def update_user(user_id: str, user: UserUpdate) -> dict:
     # remove None values from user
     user = {k: v for k, v in user.items() if v is not None}
-    update_result = await User.update_one({"_id": bson.ObjectId(user_id)}, {"$set": user})
+    update_result = await User.update_one({"_id": user_id}, {"$set": user})
     if update_result.modified_count == 1:
-        user = await User.find_one({"_id": bson.ObjectId(user_id)})
-        if (updated_student := await User.find_one({"_id": bson.ObjectId(user_id)})) is not None:
+        user = await User.find_one({"_id": user_id})
+        if (updated_student := await User.find_one({"_id": user_id})) is not None:
             updated_student["_id"] = str(updated_student["_id"])
             return updated_student
-    if (existing_student := await User.find_one({"_id": bson.ObjectId(user_id)})) is not None:
+    if (existing_student := await User.find_one({"_id": user_id})) is not None:
         existing_student["_id"] = str(existing_student["_id"])
         return existing_student
     raise HTTPException(status_code=404, detail=f"User with id: {user_id} not found.")

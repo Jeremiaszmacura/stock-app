@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import BaseCard from '../components/ui/BaseCard'
@@ -15,6 +15,7 @@ const CompanyPage = () => {
 
     const { state } = useLocation();
     const { symbol, name, type, region, marketOpen, marketClose, timezone, currency, matchScore } = state;
+    const varRef = useRef(null);
     const [companyResultPlot, setCompanyResultPlot] = useState('');
     const [companyResultVar, setCompanyResultVar] = useState('');
     const [selectedInterval, setSelectedInterval] = useState('');
@@ -31,6 +32,11 @@ const CompanyPage = () => {
 
     const selectInterval = (event) => {
         setSelectedInterval(event.target.value);
+        if(event.target.value !== "daily") {
+            setValueAtRisk('');
+            setVarType('');
+            varRef.current.style.backgroundColor = "rgba(0, 204, 255, 0.116)";
+        } 
     }
 
     const intervalSearchHandler = (event) => {
@@ -39,8 +45,6 @@ const CompanyPage = () => {
         setErrorMessage(false)
         setIsLoading(true);
         event.preventDefault();
-        console.log(valueAtRisk)
-        console.log(varType)
         if (!selectedInterval) {
             setIsLoading(false);
             setErrorMessage("Please select Time Interval");
@@ -51,39 +55,50 @@ const CompanyPage = () => {
             setErrorMessage("Please select VaR type");
             return;
         }
+        const { symbol, name, type, region, marketOpen, marketClose, timezone, currency, matchScore } = state;
         const CompanySearchData = {
             symbol: String(symbol),
+            name: String(name),
+            type: String(type),
+            region: String(region),
+            market_open: String(marketOpen),
+            market_close: String(marketClose),
+            timezone: String(timezone),
+            currency: String(currency),
             interval: String(selectedInterval),
-            calculate: Array(valueAtRisk, hurstExponent),
+            calculate: [valueAtRisk, hurstExponent],
             var_type: String(varType),
             portfolio_value: Number(varPortfloioValue),
             confidence_level: Number(varConfidenceLevel/100),
             historical_days: Number(varHistoricalDays),
             horizon_days: Number(varHorizonDays),
         }
-        setCompanySearchData(CompanySearchData)
         console.log(CompanySearchData)
+        setCompanySearchData(CompanySearchData)
         fetch(
             'http://localhost:8000/stock-data/',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + localStorage.getItem('tokenInStorage'),
                 },
                 body: JSON.stringify(CompanySearchData)
             }
         )
         .then(res => {
             if (res.ok) {
-                console.log('[CLIENT] login - fetch successful');
+                console.log('[CLIENT] fetch successful');
             } else {
-                console.log('[CLIENT] login - fetch NOT successful');
+                console.log('[CLIENT] fetch NOT successful');
             }
             res.json().then((data) => {
                 data = JSON.parse(data)
                 setIsLoading(false);
                 setCompanyResultPlot(data['plot']);
-                setCompanyResultVar(data['var'].toFixed(2));
+                if(data['var']) {
+                    setCompanyResultVar(data['var'].toFixed(2));
+                }
             });
         }).catch(err => {
             console.log(err);
@@ -92,13 +107,20 @@ const CompanyPage = () => {
     }
 
     const handleChangeVAR = (event) => {
+        if(selectedInterval !== "daily") {
+            setErrorMessage("Value at risk can only be calculated for the daily time interval");
+            return;
+        } else {
+            setErrorMessage('');
+        }
         if(valueAtRisk) {
-            setValueAtRisk('')
+            setValueAtRisk('');
+            setVarType('');
             event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.116)';
         }
         else {
             event.target.style.backgroundColor = 'rgba(0, 204, 255, 0.719)';
-            setValueAtRisk(event.target.value)
+            setValueAtRisk(event.target.value);
         }
     }
 
@@ -172,7 +194,7 @@ const CompanyPage = () => {
                 </div>
                 <div className={styles.multiSelect}>
                     <div className={styles.multiSelectBox}>
-                        <button id={styles.var} onClick={handleChangeVAR} value="var">Value at Risk</button>
+                        <button id={styles.var} ref={varRef} onClick={handleChangeVAR} value="var">Value at Risk</button>
                     </div>
                     <div className={styles.multiSelectBox}>
                         <button id={styles.hurst} onClick={handleChangeHurst} value="hurst">Hurst Exponent</button>
