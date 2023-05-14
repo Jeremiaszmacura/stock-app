@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import jwt from 'jwt-decode'
 
 import BaseCard from '../components/ui/BaseCard'
+import AnalysesHistory from '../components/users/AnalysesHistory';
 import styles from './Dashboard.module.css'
 import { TokenContext, UserContext, AdminContext } from "../UserContext";
 
@@ -12,7 +13,7 @@ const DashboardPage = () => {
     const [newName, setNewName] = useState(null);
     const [newSurname, setNewSurname] = useState(null);
     const [newUsername, setNewUsername] = useState(null);
-    const [userData, setUserData] = useState(null);
+    const [userAnalysisData, setUserAnalysisData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -33,13 +34,23 @@ const DashboardPage = () => {
                 console.log(res);
             }
             res.json().then((data) => {
-                data = JSON.stringify(data);
-                setUserData(data);
+                // console.log("1")
+                // console.log(data["analysis_history"])
+                // let result = []
+                data = data["analysis_history"]
+                // data = JSON.stringify(data["analysis_history"]);
+                // let result = Object.keys(data).map((key) => [key, data[key]]);
+                // for(var i in data)
+                //     result.push([i, data[i]]);
+                console.log("########################")
+                console.log(typeof(data))
+                console.log(data)
+                setUserAnalysisData(data);
             });
         }).catch(err => {
             console.log(err);
         });
-    })
+    }, [])
 
     const updateUser = (event) => {
         console.log(userInStorage.id)
@@ -113,6 +124,9 @@ const DashboardPage = () => {
             </BaseCard>
             <BaseCard>
                 <h1>Analysis History</h1>
+                {/* {userAnalysisData} */}
+                {/* {userAnalysisData && userAnalysisData.length > 0 && <p>hi</p>} */}
+                {userAnalysisData && userAnalysisData.length > 0 && <AnalysesHistory analysesHistoryData={userAnalysisData}/>}
             </BaseCard>
         </div>
     );

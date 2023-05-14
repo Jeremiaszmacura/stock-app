@@ -31,6 +31,7 @@ pd.options.mode.chained_assignment = None
 
 
 def prepare_search_data(data: list[dict]) -> list[dict]:
+    """Preparation of retrieved data from api for search result."""
     for company in data:
         company["symbol"] = company.pop("1. symbol")
         company["name"] = company.pop("2. name")
@@ -45,6 +46,7 @@ def prepare_search_data(data: list[dict]) -> list[dict]:
 
 
 def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
+    """Preparation of retrieved data from api for further calculations and plotting."""
     if interval == "daily":
         data = data[["1. open", "2. high", "3. low", "4. close", "6. volume"]]
     # Rename columns names and index name
@@ -56,6 +58,7 @@ def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
 
 
 def plot_data(data: pd.DataFrame, meta: dict):
+    """Plot charts based on stock market data."""
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
     L = 6
@@ -75,7 +78,15 @@ def plot_data(data: pd.DataFrame, meta: dict):
 
 
 def calculate_returns(data: pd.Series) -> pd.Series:
+    """Calculate normalized returns."""
     returns = data / data.shift(1)
+    returns = returns.dropna()
+    return returns
+
+
+def calculate_log_returns(data: pd.Series) -> pd.Series:
+    """Calculate normalized log returns."""
+    returns = np.log10(data) / np.log10(data.shift(1))
     returns = returns.dropna()
     return returns
 
@@ -87,7 +98,10 @@ def historical_simulation_var(
     historical_days: int,
     horizon_days: int,
 ) -> float:
-    sorted_returns = np.sort(returns)
+    """Calculate Value at Risk using historical simulation method."""
+    returns_subset: pd.Series = returns[:historical_days]
+    sorted_returns = np.sort(returns_subset)
+    print(sorted_returns)
     percentile = 1 - confidence_level
     index = int(percentile * len(sorted_returns))
     worst_portfolio_value = sorted_returns[index] * portfolio_value
@@ -102,10 +116,12 @@ def linear_model_var(
     historical_days: int,
     horizon_days: int,
 ) -> float:
+    """Calculate Value at Risk using linear model simulation."""
+    returns_subset: pd.Series = returns[:historical_days]
     # Standard deviation is the statistical measure of market volatility
-    std_dev = np.std(returns)
-    quantile = norm.ppf(confidence_level)
-    var = quantile * std_dev * portfolio_value * np.sqrt(horizon_days)
+    std_dev = np.std(returns_subset)
+    standard_score = norm.ppf(confidence_level)
+    var = standard_score * std_dev * portfolio_value * np.sqrt(horizon_days)
     return var
 
 
@@ -116,6 +132,7 @@ def monte_carlo_var(
     historical_days: int,
     horizon_days: int,
 ) -> float:
+    """Calculate Value at Risk using monte carlo simulation."""
     pass
 
 
@@ -127,8 +144,10 @@ def calculate_value_at_risk(
     historical_days: int,
     horizon_days: int,
 ):
-    data = data["close"]
+    """Calcualte Value at Risk."""
+    data = data["close"]    
     returns = calculate_returns(data)
+    # returns = calculate_log_returns(data)
 
     if var_type == "historical":
         var = historical_simulation_var(
@@ -155,7 +174,8 @@ def calculate_hurst_exponent():
 
 
 @router.post("/", response_description="Stock data retrieved")
-async def get_stock_data(req_data: GetStockData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
+async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
+    """Endpoint to get data and calculate statistics for specified company."""
     # Check if user is logged in
     user = None
     try:
@@ -219,7 +239,8 @@ async def get_stock_data(req_data: GetStockData, token: str = Depends(oauth2_sch
 
 
 @router.get("/search", response_description="Stock data retrieved")
-async def get_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
+async def search_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
+    """Endpoint to search for company based on a given phrase."""
     user = None
     try:
         user = await get_current_user(token)

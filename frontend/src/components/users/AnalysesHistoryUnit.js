@@ -9,9 +9,11 @@ const AnalysesHistoryUnit = (props) => {
     const selectHandler = (event) => {
         event.preventDefault();
 
-        navigate('/company', { state: props });
+        console.log("check this out!")
 
     }
+
+    console.log("what")
 
     return (
         <div className={styles.body}>
@@ -59,4 +61,4 @@ const AnalysesHistoryUnit = (props) => {
     );
 }
 
-export default SearchResultUnit;
+export default AnalysesHistoryUnit;

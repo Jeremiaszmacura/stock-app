@@ -34,7 +34,7 @@ const MyPortfolioPage = () => {
                             <input type='text' onChange={e => setCompanyInvestSymbol(e.target.value)} required id='varHistoricalDays' />
                         </div>
                         <div className={styles.customInput}>
-                            <label htmlFor='varHistoricalDays'>Portfolio value</label>
+                            <label htmlFor='varHistoricalDays'>Value to invest</label>
                             <input type='number' min="1" max="1000000000" onChange={e => setCompanyInvestValue(e.target.value)} required id='varHistoricalDays' />
                         </div>
                         <div id={styles.selectButtonAdd}>
