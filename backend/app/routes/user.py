@@ -110,7 +110,10 @@ async def update_user(user_id: str, user: UserUpdate) -> JSONResponse:
         },
         expires_delta=access_token_expires,
     )
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"data": user, "access_token": access_token, "token_type": "bearer"})
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"data": user, "access_token": access_token, "token_type": "bearer"},
+    )
 
 
 @router.delete("/{user_id}", response_description="User deleted", response_model=UserOut)

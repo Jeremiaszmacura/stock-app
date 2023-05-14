@@ -145,7 +145,7 @@ def calculate_value_at_risk(
     horizon_days: int,
 ):
     """Calcualte Value at Risk."""
-    data = data["close"]    
+    data = data["close"]
     returns = calculate_returns(data)
     # returns = calculate_log_returns(data)
 
@@ -174,7 +174,9 @@ def calculate_hurst_exponent():
 
 
 @router.post("/", response_description="Stock data retrieved")
-async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
+async def calculate_stock_data(
+    req_data: GetStockData, token: str = Depends(oauth2_scheme)
+) -> JSONResponse:
     """Endpoint to get data and calculate statistics for specified company."""
     # Check if user is logged in
     user = None
@@ -185,7 +187,7 @@ async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oaut
             user_availability = False
         else:
             user_availability = True
-    
+
     data: pd.DataFrame
     meta: dict
     req_data: dict = jsonable_encoder(req_data)
@@ -223,7 +225,7 @@ async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oaut
             res_data["var"] = var
         if statistic == "hurst":
             calculate_hurst_exponent()
-    
+
     # Add Analyse data to history of current loged in user
     if user:
         user = jsonable_encoder(parse_obj_as(UserOut, user))
@@ -232,8 +234,8 @@ async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oaut
         print(type(user))
         print(type(user["analysis_history"]))
         user["analysis_history"].append(analysed)
-        await user_crud.update_user(user["_id"], user)    
-    
+        await user_crud.update_user(user["_id"], user)
+
     res_data = json.dumps(res_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
 
@@ -249,7 +251,7 @@ async def search_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
             user_availability = False
     if user:
         user_availability = True
-    
+
     try:
         url = f"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey=D6Q2O1GZ0MZO4FO0"
         r: requests.Response = requests.get(url)
@@ -257,12 +259,15 @@ async def search_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
         data: list = data["bestMatches"]
     except KeyError:
         raise HTTPException(status_code=400, detail=f"incorrect symbol value.")
-    
+
     if not data:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={"message": f"For phrase '{symbol}' company not found"},
         )
     data: list[dict] = prepare_search_data(data)
-    
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"data": data, "user_availability": user_availability})
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"data": data, "user_availability": user_availability},
+    )
