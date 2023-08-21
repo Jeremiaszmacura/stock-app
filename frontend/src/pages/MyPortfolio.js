@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import BaseCard from '../components/ui/BaseCard'
+import PortfolioInvest from '../components/stock/PortfolioInvest'
 import styles from './MyPortfolio.module.css'
 
 
@@ -8,9 +9,10 @@ const MyPortfolioPage = () => {
 
     const defaultVarHistoricalDays = 200
     const defaultVarHorizonDays = 1
-    const defaultPortfloioValue = 1000
+    const defaultPortfloioValue = 0
     const defaultConfidenceLevel = 99
 
+    const [companyInvestList, setCompanyInvestList] = useState([]);
     const [companyInvestSymbol, setCompanyInvestSymbol] = useState('');
     const [companyInvestValue, setCompanyInvestValue] = useState('');
     const [valueAtRisk, setValueAtRisk] = useState('');
@@ -19,8 +21,22 @@ const MyPortfolioPage = () => {
     const [varHorizonDays, setVarHorizonDays] = useState(defaultVarHorizonDays);
     const [varPortfloioValue, setVarPortfloioValue] = useState(defaultPortfloioValue);
     const [varConfidenceLevel, setVarConfidenceLevel] = useState(defaultConfidenceLevel);
-
+    
     const addToPortfolio = (event) => {
+        console.log("hi")
+        let companyAdded = {
+            companyInvestSymbol: companyInvestSymbol,
+            companyInvestValue: companyInvestValue
+        }
+        setCompanyInvestList(companyInvestList => [...companyInvestList, companyAdded])
+        console.log(companyInvestList)
+    }
+
+    const deleteHandler = () => {
+
+    }
+
+    const calculatePortfolioVaR = (event) => {
         console.log("hi")
     }
 
@@ -43,8 +59,23 @@ const MyPortfolioPage = () => {
                     </div>
                 </BaseCard>
                 <BaseCard>
-                <div className={styles.investmentsBox}>
-                        <p id={styles.emptyPortfolio}>Portfolio empty</p>
+                    <div>
+                        {companyInvestList.length > 0 &&
+                            <div className={styles.investmentsBox}>
+                                {companyInvestList.map((company, id) => (
+                                    <PortfolioInvest
+                                    key={id}
+                                    companySymbol={company.companyInvestSymbol}
+                                    companyValue={company.companyInvestValue}
+                                    companyInvestList
+                                    setCompanyInvestList
+                                    />
+                                ))} 
+                            </div>
+                        }
+                        {companyInvestList.length == 0 &&
+                            <p id={styles.emptyPortfolio}>Portfolio empty</p>
+                        }
                     </div> 
                 </BaseCard>
             </div>
@@ -71,16 +102,12 @@ const MyPortfolioPage = () => {
                             <input type='number' min="10" max="10000" defaultValue={defaultVarHorizonDays} onChange={e => setVarHorizonDays(e.target.value)} required id='varHorizonDays' />
                         </div>
                         <div className={styles.customInput}>
-                            <label htmlFor='varHorizonDays'>Portfolio value</label>
-                            <input type='number' min="10" max="1000000000" defaultValue={defaultPortfloioValue} onChange={e => setVarPortfloioValue(e.target.value)} required id='varPortfloioValue' />
-                        </div>
-                        <div className={styles.customInput}>
                             <label htmlFor='varHorizonDays'>Confidence level %</label>
                             <input type='number' min="1" max="99" defaultValue={defaultConfidenceLevel} onChange={e => setVarConfidenceLevel(e.target.value)} required id='varConfidenceLevel' />
                         </div>
                     </div>
                     <div id={styles.selectButton}>
-                        <button onClick={addToPortfolio}>Calculate</button>
+                        <button onClick={calculatePortfolioVaR}>Calculate</button>
                     </div>  
                 </BaseCard>
             </div>  

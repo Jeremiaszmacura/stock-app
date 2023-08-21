@@ -2,8 +2,10 @@
 import base64
 import requests
 import json
+import datetime
 from io import BytesIO
 from typing import Annotated
+import matplotlib
 
 from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
@@ -57,29 +59,63 @@ def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
     return data
 
 
-def plot_data(data: pd.DataFrame, meta: dict):
+def linear_plot(data: pd.DataFrame, ax: matplotlib.axes.Axes):
+    shift = np.linspace(0, 6)
+    for _ in shift:
+        ax.plot(data["close"], color="#00ccff", linewidth=0.5)
+
+
+def candle_stick_plot(data: pd.DataFrame):
+    plt.subplots_adjust(bottom=0.20)
+    plt.xticks(rotation=70, fontsize=6)
+    plt.yticks(fontsize=8)
+    up = data[data.close >= data["open"]]
+    down = data[data["close"] < data["open"]]
+    up_color = "#89ff00"
+    up_shadow_color = "#4CAE50"
+    down_color = "#ff005e"
+    down_shadow_color = "#9C2525"
+    bar_width = 0.5
+    shadow_width = 0.2
+    # Plotting up prices of the stock
+    plt.bar(up.index, up.close-up.open, bar_width, bottom=up.open, color=up_color)
+    plt.bar(up.index, up.high-up.close, shadow_width, bottom=up.close, color=up_shadow_color)
+    plt.bar(up.index, up.low-up.open, shadow_width, bottom=up.open, color=up_shadow_color)
+    # Plotting down prices of the stock
+    plt.bar(down.index, down.close-down.open, bar_width, bottom=down.open, color=down_color)
+    plt.bar(down.index, down.high-down.open, shadow_width, bottom=down.open, color=down_shadow_color)
+    plt.bar(down.index, down.low-down.close, shadow_width, bottom=down.close, color=down_shadow_color)
+
+
+
+def plot_data(plot_type: str, data: pd.DataFrame, meta: dict, name: str, frequency: str):
     """Plot charts based on stock market data."""
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
-    L = 6
-    x = np.linspace(0, L)
-    ncolors = len(plt.rcParams["axes.prop_cycle"])
-    shift = np.linspace(0, L, ncolors, endpoint=False)
-    for s in shift:
-        ax.plot(data["close"])
-    ax.set_xlabel("time")
-    ax.set_ylabel("value")
-    ax.set_title(meta["2. Symbol"])
+    plt.rc('font', size=8)
+    if frequency not in ["daily", "weekly", "monthly"]:
+        plt.subplots_adjust(bottom=0.20)
+        plt.xticks(rotation=70, fontsize=6)
+    if plot_type == "linear":
+        linear_plot(data, ax)
+    elif plot_type == "candlestick":
+        candle_stick_plot(data)
+    ax.set_xlabel("time", fontsize=12, labelpad=6, fontweight="bold")
+    ax.set_ylabel("value", fontsize=12, labelpad=6, fontweight="bold")
+    ax.set_title(f'{meta["2. Symbol"]} ({name})', fontsize=14, pad=12, fontweight="bold")
     buf = BytesIO()
-    fig.savefig(buf, format="png")
+    fig.savefig(buf, format="png",  dpi=300)
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    # plt.show()
     return data
 
 
 def calculate_returns(data: pd.Series) -> pd.Series:
     """Calculate normalized returns."""
+    print(data)
     returns = data / data.shift(1)
+    print("########")
+    print(data.shift(1))
+    print(returns)
     returns = returns.dropna()
     return returns
 
@@ -101,7 +137,6 @@ def historical_simulation_var(
     """Calculate Value at Risk using historical simulation method."""
     returns_subset: pd.Series = returns[:historical_days]
     sorted_returns = np.sort(returns_subset)
-    print(sorted_returns)
     percentile = 1 - confidence_level
     index = int(percentile * len(sorted_returns))
     worst_portfolio_value = sorted_returns[index] * portfolio_value
@@ -191,9 +226,12 @@ async def calculate_stock_data(
     data: pd.DataFrame
     meta: dict
     req_data: dict = jsonable_encoder(req_data)
-    print(req_data)
     symbol = req_data["symbol"]
+    name = req_data["name"]
     interval = req_data["interval"]
+    date_from = req_data["date_from"]
+    date_to = req_data["date_to"]
+    plot_type = req_data["plot_type"]
     if "var" in req_data["calculate"]:
         var_type = req_data["var_type"]
         portfolio_value = req_data["portfolio_value"]
@@ -215,7 +253,14 @@ async def calculate_stock_data(
     except ValueError as ex:
         raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
     data = prepare_data(data, interval)
-    plot = plot_data(data, meta)
+    
+    # adjust selected datetime
+    date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
+    date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d").date()
+    mask = (data['TradeDate'] > date_from) & (data['TradeDate'] <= date_to)
+    data = data.loc[mask]
+    
+    plot = plot_data(plot_type, data, meta, name, interval)
     res_data = {"plot": plot}
     for statistic in req_data["calculate"]:
         if statistic == "var":
@@ -230,9 +275,6 @@ async def calculate_stock_data(
     if user:
         user = jsonable_encoder(parse_obj_as(UserOut, user))
         analysed: dict = req_data | res_data
-        print(user)
-        print(type(user))
-        print(type(user["analysis_history"]))
         user["analysis_history"].append(analysed)
         await user_crud.update_user(user["_id"], user)
 

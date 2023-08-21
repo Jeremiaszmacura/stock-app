@@ -11,7 +11,6 @@ class UserBase(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     email: EmailStr = Field(example="email@email.com")
     name: str = Field(title="User Name", max_length=30, example="John")
-    surname: str = Field(title="User Name", max_length=30, example="Kowalsky")
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
     analysis_history: list[GetStockData] = Field(default=[])
@@ -23,7 +22,6 @@ class UserBase(BaseModel):
             "example": {
                 "email": "email@email.com",
                 "name": "John",
-                "surname": "Kowalsky",
                 "is_active": True,
                 "is_superuser": False,
             }
@@ -40,7 +38,6 @@ class UserCreate(UserBase):
         schema_extra = {
             "example": {
                 "name": "John",
-                "surname": "Kowalsky",
                 "email": "email@email.com",
                 "is_active": True,
                 "is_superuser": False,
@@ -53,7 +50,6 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     email: EmailStr | None = Field(example="email@email.com")
     name: str | None = Field(title="User Name", max_length=30, example="John")
-    surname: str | None = Field(title="User Name", max_length=30, example="Kowalsky")
     is_active: bool | None = Field(default=True)
     is_superuser: bool | None = Field(default=False)
     updated_at: datetime | None = Field(default=datetime.now())
@@ -68,7 +64,6 @@ class UserUpdate(BaseModel):
             "example": {
                 "email": "email@email.com",
                 "name": "John",
-                "surname": "Kowalsky",
                 "is_active": True,
                 "is_superuser": False,
             }

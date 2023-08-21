@@ -57,6 +57,9 @@ const MainNavigation = () => {
                 <li>
                     <Link className={styles.a} to='/dashboard'>Dashboard</Link>
                 </li>
+                <li>
+                    <Link className={styles.a} to='/incandreq'>Inc & Req</Link>
+                </li>
                 <Link onClick={ () => {logOut(); setUser(null); setAdmin(null)} } to={'/'} ><button>Logout</button></Link>
                 </>
             ) : (

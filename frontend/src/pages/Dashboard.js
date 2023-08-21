@@ -58,9 +58,6 @@ const DashboardPage = () => {
         if(userInStorage.name !== newName) {
             updateUserData["name"] = newName
         }
-        if(userInStorage.surname !== newName) {
-            updateUserData["surname"] = newSurname
-        }
         if(userInStorage.username !== newName) {
             updateUserData["username"] = newUsername
         }
@@ -109,10 +106,6 @@ const DashboardPage = () => {
                         <input type='text' defaultValue={userInStorage.name} onChange={e => setNewName(e.target.value)} required id='varHistoricalDays' />
                     </div>
                     <div className={styles.customInput}>
-                        <label htmlFor='varHorizonDays'>Surname</label>
-                        <input type='text' defaultValue={userInStorage.surname} onChange={e => setNewSurname(e.target.value)} required id='varHorizonDays' />
-                    </div>
-                    <div className={styles.customInput}>
                         <label htmlFor='varHorizonDays'>Email</label>
                         <input id={styles.emailInput} type='text' defaultValue={userInStorage.username} onChange={e => setNewUsername(e.target.value)} required />
                     </div>
@@ -123,7 +116,7 @@ const DashboardPage = () => {
             </div>
             </BaseCard>
             <BaseCard>
-                <h1>Analysis History</h1>
+                <h1 id={styles.analysisHistoryTitle}>Analysis History</h1>
                 {/* {userAnalysisData} */}
                 {/* {userAnalysisData && userAnalysisData.length > 0 && <p>hi</p>} */}
                 {userAnalysisData && userAnalysisData.length > 0 && <AnalysesHistory analysesHistoryData={userAnalysisData}/>}

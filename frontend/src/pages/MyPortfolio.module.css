@@ -81,6 +81,7 @@
 .portfolioVar {
     display: grid;
     grid-template-columns: 1fr;
+    margin: 0 10em;
 }
 
 .customInputSection {
@@ -97,6 +98,14 @@
 .portfolioVarFirst p {
     margin: 0.5em auto;
     font-size: 1.2em;
+}
+
+.investmentsBox {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 1.5em 0;
+    /* margin: 1em; */
 }
 
 #emptyPortfolio {

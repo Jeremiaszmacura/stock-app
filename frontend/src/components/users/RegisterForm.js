@@ -5,7 +5,6 @@ import styles from './LoginForm.module.css';
 const RegisterForm = (props) => {
 
     const nameInputRef = useRef();
-    const surnameInputRef = useRef();
     const emailInputRef = useRef();
     const passwordInputRef = useRef();
     const confirmPasswordInputRef = useRef();
@@ -14,14 +13,12 @@ const RegisterForm = (props) => {
         event.preventDefault();
 
         const enteredName = nameInputRef.current.value;
-        const enteredSurname = surnameInputRef.current.value;
         const enteredEmail = emailInputRef.current.value;
         const enteredPassword = passwordInputRef.current.value;
         const enteredConfirmPassword = confirmPasswordInputRef.current.value;
 
         const registerData = {
             name: enteredName,
-            surname:enteredSurname,
             email: enteredEmail,
             password: enteredPassword,
             confirm_password: enteredConfirmPassword,
@@ -36,10 +33,6 @@ const RegisterForm = (props) => {
             <div className={styles.control}>
                 <label htmlFor='name'>Name</label>
                 <input type='text' required id='name' ref={nameInputRef} />
-            </div>
-            <div className={styles.control}>
-                <label htmlFor='name'>Surname</label>
-                <input type='text' required id='surname' ref={surnameInputRef} />
             </div>
             <div className={styles.control}>
                 <label htmlFor='email'>Email</label>

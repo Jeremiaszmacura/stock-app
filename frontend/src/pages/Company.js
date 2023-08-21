@@ -8,6 +8,9 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const CompanyPage = () => {
 
+    let today = new Date().toISOString().slice(0, 10)
+    const defaultDateFrom = "2013-01-01"
+    const defaultDateTo = today
     const defaultVarHistoricalDays = 200
     const defaultVarHorizonDays = 1
     const defaultPortfloioValue = 1000
@@ -16,6 +19,10 @@ const CompanyPage = () => {
     const { state } = useLocation();
     const { symbol, name, type, region, marketOpen, marketClose, timezone, currency, matchScore } = state;
     const varRef = useRef(null);
+    const [showDate, setShowDate] = useState(false)
+    const [dateFrom, setDateFrom] = useState(defaultDateFrom)
+    const [dateTo, setDateTo] = useState(defaultDateTo)
+    const [plotType, setPlotType] = useState()
     const [companyResultPlot, setCompanyResultPlot] = useState('');
     const [companyResultVar, setCompanyResultVar] = useState('');
     const [selectedInterval, setSelectedInterval] = useState('');
@@ -32,6 +39,11 @@ const CompanyPage = () => {
 
     const selectInterval = (event) => {
         setSelectedInterval(event.target.value);
+        if(["daily", "weekly", "monthly"].includes(event.target.value)) {
+            setShowDate(true)
+        } else {
+            setShowDate(false)
+        }
         if(event.target.value !== "daily") {
             setValueAtRisk('');
             setVarType('');
@@ -66,6 +78,9 @@ const CompanyPage = () => {
             timezone: String(timezone),
             currency: String(currency),
             interval: String(selectedInterval),
+            date_from: String(dateFrom),
+            date_to: String(dateTo),
+            plot_type: String(plotType),
             calculate: [valueAtRisk, hurstExponent],
             var_type: String(varType),
             portfolio_value: Number(varPortfloioValue),
@@ -191,7 +206,22 @@ const CompanyPage = () => {
                         <option value="weekly">weekly</option>
                         <option value="monthly">monthly</option>
                     </select>
+                    <select onChange={e => setPlotType(e.target.value)} defaultValue={''}>
+                        <option hidden value="" disabled>Plot Type</option>
+                        <option value="linear">linear</option>
+                        <option value="candlestick">candlestick</option>
+                    </select>
                 </div>
+                {showDate && <div className={styles.dateInput}>
+                    <div className={styles.dateInputUnit}>
+                        <label htmlFor='varHistoricalDays'>Date from</label>
+                        <input type="date" id="start" name="date-begin" min="1900-01-02" defaultValue={defaultDateFrom} onChange={e => setDateFrom(e.target.value)}/>
+                    </div>
+                    <div className={styles.dateInputUnit}>
+                        <label htmlFor='varHistoricalDays'>Date to</label>
+                        <input type="date" id="start" name="date-end" min="1900-01-01" defaultValue={defaultDateTo} onChange={e => setDateTo(e.target.value)}/>
+                    </div>
+                </div> }
                 <div className={styles.multiSelect}>
                     <div className={styles.multiSelectBox}>
                         <button id={styles.var} ref={varRef} onClick={handleChangeVAR} value="var">Value at Risk</button>
@@ -227,7 +257,7 @@ const CompanyPage = () => {
                             <label htmlFor='varHorizonDays'>Confidence level %</label>
                             <input type='number' min="1" max="99" defaultValue={defaultConfidenceLevel} onChange={e => setVarConfidenceLevel(e.target.value)} required id='varConfidenceLevel' />
                         </div>
-                    </div>  
+                    </div>
                 </div>
                 }
                 <div id={styles.selectButton}>

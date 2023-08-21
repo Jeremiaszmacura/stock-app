@@ -18,16 +18,20 @@ horizon (N days) and the confidence level (X%). It is the loss level over N days
 a probability of only (100-X)% of being exceeded.</p>
                     <br />
                 </div>
+            </BaseCard>
+            <BaseCard>
                 <p className={styles.varTitle}>Historical Simulation</p>
                 <div className={styles.varContent}>
                     <p>It involves using past data as a guide to what will happen in the future</p>
                 </div>
-                <br />
+            </BaseCard>
+            <BaseCard>
                 <p className={styles.varTitle}>Linear Model Simulation</p>
                 <div className={styles.varContent}>
                     <p>Uses mean, standard deviation of historical data to calculate VaR</p>
                 </div>
-                <br />
+            </BaseCard>
+            <BaseCard>
                 <p className={styles.varTitle}>Monte Carlo Simulation</p>
                 <div className={styles.varContent}>
                     <p>description...</p>

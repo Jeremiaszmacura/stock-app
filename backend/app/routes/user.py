@@ -105,7 +105,6 @@ async def update_user(user_id: str, user: UserUpdate) -> JSONResponse:
             "id": user["_id"],
             "username": user["email"],
             "name": user["name"],
-            "surname": user["surname"],
             "is_superuser": user["is_superuser"],
         },
         expires_delta=access_token_expires,

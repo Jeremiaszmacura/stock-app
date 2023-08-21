@@ -8,6 +8,7 @@ import MyPortfolioPage from './pages/MyPortfolio';
 import DashboardPage from './pages/Dashboard';
 import LoginPage from './pages/Login';
 import RegisterPage from './pages/Register';
+import IncAndReqPage from './pages/IncAndReq';
 import Layout from './components/layout/Layout';
 import { TokenContext, UserContext, AdminContext } from './UserContext';
 
@@ -54,6 +55,8 @@ const App = () => {
               <Route path='/MyPortfolio' exact element={<MyPortfolioPage />}>
               </Route>
               <Route path='/dashboard' exact element={<DashboardPage />}>
+              </Route>
+              <Route path='/incandreq' exact element={<IncAndReqPage />}>
               </Route>
               <Route path='/register' exact element={<RegisterPage />}>
               </Route>  
