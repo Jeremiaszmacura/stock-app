@@ -5,12 +5,17 @@ on:
     branches:
       - 'master'
       - 'develop'
+    paths:
+      - 'backend/**'
 
 jobs:
   snyk-scan:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
+
+      - name: Get only backend files
+        run: mv ./backend/* ./
 
       - name: Prepare requirements for Snyk
         run: |
