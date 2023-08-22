@@ -109,3 +109,4 @@ def test_calculate_value_at_risk():
     }
     var = calculate_value_at_risk(**var_parameters)
     assert int(var) == CORRECT_CALCULATE_VAR_VALUE
+
