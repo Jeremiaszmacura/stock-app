@@ -78,21 +78,24 @@ def candle_stick_plot(data: pd.DataFrame):
     bar_width = 0.5
     shadow_width = 0.2
     # Plotting up prices of the stock
-    plt.bar(up.index, up.close-up.open, bar_width, bottom=up.open, color=up_color)
-    plt.bar(up.index, up.high-up.close, shadow_width, bottom=up.close, color=up_shadow_color)
-    plt.bar(up.index, up.low-up.open, shadow_width, bottom=up.open, color=up_shadow_color)
+    plt.bar(up.index, up.close - up.open, bar_width, bottom=up.open, color=up_color)
+    plt.bar(up.index, up.high - up.close, shadow_width, bottom=up.close, color=up_shadow_color)
+    plt.bar(up.index, up.low - up.open, shadow_width, bottom=up.open, color=up_shadow_color)
     # Plotting down prices of the stock
-    plt.bar(down.index, down.close-down.open, bar_width, bottom=down.open, color=down_color)
-    plt.bar(down.index, down.high-down.open, shadow_width, bottom=down.open, color=down_shadow_color)
-    plt.bar(down.index, down.low-down.close, shadow_width, bottom=down.close, color=down_shadow_color)
-
+    plt.bar(down.index, down.close - down.open, bar_width, bottom=down.open, color=down_color)
+    plt.bar(
+        down.index, down.high - down.open, shadow_width, bottom=down.open, color=down_shadow_color
+    )
+    plt.bar(
+        down.index, down.low - down.close, shadow_width, bottom=down.close, color=down_shadow_color
+    )
 
 
 def plot_data(plot_type: str, data: pd.DataFrame, meta: dict, name: str, frequency: str):
     """Plot charts based on stock market data."""
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
-    plt.rc('font', size=8)
+    plt.rc("font", size=8)
     if frequency not in ["daily", "weekly", "monthly"]:
         plt.subplots_adjust(bottom=0.20)
         plt.xticks(rotation=70, fontsize=6)
@@ -104,18 +107,15 @@ def plot_data(plot_type: str, data: pd.DataFrame, meta: dict, name: str, frequen
     ax.set_ylabel("value", fontsize=12, labelpad=6, fontweight="bold")
     ax.set_title(f'{meta["2. Symbol"]} ({name})', fontsize=14, pad=12, fontweight="bold")
     buf = BytesIO()
-    fig.savefig(buf, format="png",  dpi=300)
+    fig.savefig(buf, format="png", dpi=300)
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return data
 
 
 def calculate_returns(data: pd.Series) -> pd.Series:
     """Calculate normalized returns."""
-    print(data)
+    print(data.index)
     returns = data / data.shift(1)
-    print("########")
-    print(data.shift(1))
-    print(returns)
     returns = returns.dropna()
     return returns
 
@@ -253,15 +253,16 @@ async def calculate_stock_data(
     except ValueError as ex:
         raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
     data = prepare_data(data, interval)
-    
+
     # adjust selected datetime
     date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
     date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d").date()
-    mask = (data['TradeDate'] > date_from) & (data['TradeDate'] <= date_to)
+    mask = (data["TradeDate"] > date_from) & (data["TradeDate"] <= date_to)
     data = data.loc[mask]
-    
+
     plot = plot_data(plot_type, data, meta, name, interval)
     res_data = {"plot": plot}
+    data.to_csv("file_name.csv", encoding="utf-8")
     for statistic in req_data["calculate"]:
         if statistic == "var":
             var = calculate_value_at_risk(
