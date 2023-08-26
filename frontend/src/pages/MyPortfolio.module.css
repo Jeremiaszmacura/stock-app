@@ -81,7 +81,8 @@
 .portfolioVar {
     display: grid;
     grid-template-columns: 1fr;
-    margin: 0 10em;
+    margin: auto;
+    width: 100%;
 }
 
 .customInputSection {
@@ -106,6 +107,66 @@
     flex-wrap: wrap;
     margin: 1.5em 0;
     /* margin: 1em; */
+}
+
+.dateInput{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.dateInputUnit{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    /* padding-right: 10px; */
+    padding: 0 0 0.4em 0;
+    margin: 0.5em;
+}
+
+.dateInputUnit label{
+    margin: auto;
+}
+
+.dateInputUnit input{
+    background-color: rgba(0, 204, 255, 0.719);
+    border: solid rgba(0, 204, 255, 0.719);
+    border-radius: 20px;
+    color: #fff;
+    padding: 0.5em;
+    color-scheme: dark;
+}
+
+.varResult {
+    color: #fff;
+    width: 78%;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    padding-top: 1em;
+}
+
+.varResult p {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.varResultParameters {
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: auto;
+    column-gap: 1em;
+    row-gap: 0.2em;
+    justify-items: center;
+    padding-bottom: 1em;
+}
+
+#varValue {
+    text-align: center;
+    font-weight: 600;
 }
 
 #emptyPortfolio {

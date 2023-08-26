@@ -2,6 +2,7 @@
 from datetime import datetime
 from bson.objectid import ObjectId
 from pydantic import BaseModel, EmailStr, Field
+from dataclasses import dataclass
 
 from schemas.py_object_id import PyObjectId
 
@@ -50,3 +51,12 @@ class GetStockData(BaseModel):
                 "horizon_days": 1,
             }
         }
+
+
+class GetPortfolioData(BaseModel):
+    portfolio: list
+    var_type: str | None = Field(example="historical")
+    confidence_level: float | None = Field(example=0.99)
+    horizon_days: int | None = Field(example=1)
+    date_from: str = Field(example="2013-01-01")
+    date_to: str = Field(example="2023-01-01")

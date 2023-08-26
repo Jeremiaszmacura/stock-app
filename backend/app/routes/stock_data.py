@@ -3,15 +3,16 @@ import base64
 import requests
 import json
 import datetime
+import os
 from io import BytesIO
-from typing import Annotated
 import matplotlib
+from pprint import pprint
 
+import numpy as np
 from fastapi import APIRouter, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
 import pandas as pd
 import matplotlib.pyplot as plt
 from stock_api import ts
@@ -19,9 +20,9 @@ import numpy as np
 from scipy.stats import norm
 from pydantic import parse_obj_as
 
-from schemas.stock import GetStockData
-from schemas.user import UserOut, UserCreate, UserUpdate
-from security import get_current_active_user, oauth2_scheme, get_current_user
+from schemas.stock import GetStockData, GetPortfolioData
+from schemas.user import UserOut
+from security import oauth2_scheme, get_current_user
 from crud import user_crud
 
 
@@ -54,6 +55,8 @@ def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
     # Rename columns names and index name
     columns_names = ["open", "high", "low", "close", "volume"]
     data.columns = columns_names
+    # print(data)
+    # data["TradeDate"] = data.index
     data["TradeDate"] = data.index.date
     data["time"] = data.index.time
     return data
@@ -114,8 +117,7 @@ def plot_data(plot_type: str, data: pd.DataFrame, meta: dict, name: str, frequen
 
 def calculate_returns(data: pd.Series) -> pd.Series:
     """Calculate normalized returns."""
-    print(data.index)
-    returns = data / data.shift(1)
+    returns = data / data.shift(-1)
     returns = returns.dropna()
     return returns
 
@@ -127,6 +129,70 @@ def calculate_log_returns(data: pd.Series) -> pd.Series:
     return returns
 
 
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + datetime.timedelta(n)
+
+
+def portfolio_historical_var(
+    portfolio_with_data: dict,
+    confidence_level: float,
+    horizon_days: int,
+    date_from: datetime.date,
+    date_to: datetime.date
+) -> float:
+    # calculate returns
+    # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
+    for symbol_data in portfolio_with_data.values():
+        data = symbol_data["data"]
+        close_prices: pd.Series = data["close"]
+        returns: pd.Series = calculate_returns(close_prices)
+        symbol_data["returns"] = returns
+
+    portfolio_values = pd.Series()
+    for day in daterange(date_from, date_to + datetime.timedelta(1)):
+        pd_day = pd.Timestamp(day)
+        portfolio_value = 0
+        include_date = True
+        for symbol, symbol_data in portfolio_with_data.items():
+            value = symbol_data["value"]
+            returns: pd.Series = symbol_data["returns"]
+            if pd_day in returns:
+                portfolio_value += value*returns[pd_day]
+            else:
+                include_date = False
+                break
+        if include_date:
+            # print(portfolio_value)
+            portfolio_values[pd_day] = portfolio_value
+            
+    sorted_portfolio_values = np.sort(portfolio_values)
+    print(sorted_portfolio_values)
+    percentile = 1 - confidence_level
+    percentile_sample_index = int(percentile * len(sorted_portfolio_values))
+    worst_portfolio_value = sorted_portfolio_values[percentile_sample_index]
+    current_portfolio_value = sum(symbol_data["value"] for symbol_data in portfolio_with_data.values())
+    print(f"current_value={current_portfolio_value}")
+    var = (current_portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
+    print(portfolio_value)
+    print(worst_portfolio_value)
+    print(horizon_days)
+    print(var)
+
+
+            
+    
+    # for company in portfolio_with_data:
+    #     data: pd.DataFrame = company["data"]
+    #     close_prices: pd.Series = data["close"]
+    #     returns: pd.Series = calculate_returns(close_prices)
+    #     most_recent_price: float = close_prices.values[0]
+    #     historically_simulated_prices = []
+    #     for signle_return in returns:
+    #         historically_simulated_prices.append(most_recent_price*signle_return)
+        
+
+
 def historical_simulation_var(
     returns: pd.Series,
     confidence_level: float,
@@ -135,11 +201,13 @@ def historical_simulation_var(
     horizon_days: int,
 ) -> float:
     """Calculate Value at Risk using historical simulation method."""
-    returns_subset: pd.Series = returns[:historical_days]
-    sorted_returns = np.sort(returns_subset)
+    first_return = max(len(returns) - historical_days, 0)
+    returns_subset: pd.Series = returns[first_return:]
+    sorted_returns = np.sort(returns_subset)    
+    print(sorted_returns*100)
     percentile = 1 - confidence_level
-    index = int(percentile * len(sorted_returns))
-    worst_portfolio_value = sorted_returns[index] * portfolio_value
+    percentile_sample_index = int(percentile * len(sorted_returns))
+    worst_portfolio_value = sorted_returns[percentile_sample_index] * portfolio_value
     var = (portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
     return var
 
@@ -152,7 +220,8 @@ def linear_model_var(
     horizon_days: int,
 ) -> float:
     """Calculate Value at Risk using linear model simulation."""
-    returns_subset: pd.Series = returns[:historical_days]
+    first_return = max(len(returns) - historical_days, 0)
+    returns_subset: pd.Series = returns[first_return:]
     # Standard deviation is the statistical measure of market volatility
     std_dev = np.std(returns_subset)
     standard_score = norm.ppf(confidence_level)
@@ -166,9 +235,20 @@ def monte_carlo_var(
     portfolio_value: int | float,
     historical_days: int,
     horizon_days: int,
+    number_of_samples: int = 5000
 ) -> float:
     """Calculate Value at Risk using monte carlo simulation."""
-    pass
+    first_return = max(len(returns) - historical_days, 0)
+    returns_subset: pd.Series = returns[first_return:]
+    std_dev = np.std(returns_subset)
+    # loc=Mean(center), scale=Std(Spread/Width)
+    norm_distribution_samples = np.random.normal(loc=0, scale=std_dev, size=number_of_samples)
+    sorted_norm_distribution_samples = np.sort(norm_distribution_samples)    
+    percentile = 1 - confidence_level
+    percentile_sample_index = int(percentile * len(sorted_norm_distribution_samples))
+    one_day_var = portfolio_value * sorted_norm_distribution_samples[percentile_sample_index]
+    var = abs(one_day_var * np.sqrt(horizon_days))
+    return var
 
 
 def calculate_value_at_risk(
@@ -192,8 +272,10 @@ def calculate_value_at_risk(
         var = linear_model_var(
             returns, confidence_level, portfolio_value, historical_days, horizon_days
         )
-    # if var_type == "monte_carlo":
-    #     var = monte_carlo_var(returns, confidence_level, portfolio_value, horizon_days)
+    if var_type == "monte_carlo":
+        var = monte_carlo_var(
+            returns, confidence_level, portfolio_value, historical_days, horizon_days
+        )
 
     res = "The VaR at the %.2f confidence level and portfolio value %.2f is %.2f" % (
         confidence_level,
@@ -232,12 +314,6 @@ async def calculate_stock_data(
     date_from = req_data["date_from"]
     date_to = req_data["date_to"]
     plot_type = req_data["plot_type"]
-    if "var" in req_data["calculate"]:
-        var_type = req_data["var_type"]
-        portfolio_value = req_data["portfolio_value"]
-        confidence_level = req_data["confidence_level"]
-        historical_days = req_data["historical_days"]
-        horizon_days = req_data["horizon_days"]
 
     if interval not in STOCK_DATA_INTERVALS:
         raise HTTPException(status_code=400, detail="incorrect interval value.")
@@ -252,13 +328,32 @@ async def calculate_stock_data(
             data, meta = ts.get_intraday(symbol=symbol, interval=interval, outputsize="full")
     except ValueError as ex:
         raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
+    # data_path = os.path.join(os.path.dirname(__file__), "samsung_pand.csv")
+    # data = pd.read_csv(data_path, index_col='date')
+    # meta = {"2. Symbol": "xd"}
+    # print(data)
     data = prepare_data(data, interval)
 
     # adjust selected datetime
     date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
     date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d").date()
-    mask = (data["TradeDate"] > date_from) & (data["TradeDate"] <= date_to)
+    print(f"Data from: {date_from} to {date_to}")
+    mask = (data["TradeDate"] >= date_from) & (data["TradeDate"] <= date_to)
     data = data.loc[mask]
+    # print("hihihihi")
+    # print(data)
+    # data.to_csv("wtf", sep=',')
+    # print(len(data.index))
+    
+    if "var" in req_data["calculate"]:
+        var_type = req_data["var_type"]
+        portfolio_value = req_data["portfolio_value"]
+        confidence_level = req_data["confidence_level"]
+        horizon_days = req_data["horizon_days"]
+        if len(data) < req_data["historical_days"]:
+            historical_days = len(data)
+        else:
+            historical_days = req_data["historical_days"]  
 
     plot = plot_data(plot_type, data, meta, name, interval)
     res_data = {"plot": plot}
@@ -269,6 +364,7 @@ async def calculate_stock_data(
                 var_type, data, confidence_level, portfolio_value, historical_days, horizon_days
             )
             res_data["var"] = var
+            res_data["historical_days"] = historical_days
         if statistic == "hurst":
             calculate_hurst_exponent()
 
@@ -279,6 +375,57 @@ async def calculate_stock_data(
         user["analysis_history"].append(analysed)
         await user_crud.update_user(user["_id"], user)
 
+    res_data = json.dumps(res_data)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
+
+
+@router.post("/portfolio-var", response_description="Stock data retrieved")
+async def calculate_portfolio_var(
+    req_data: GetPortfolioData, token: str = Depends(oauth2_scheme)
+) -> JSONResponse:
+    req_data: dict = jsonable_encoder(req_data)
+    print(req_data)
+    var_type = req_data["var_type"]
+    confidence_level = req_data["confidence_level"]
+    horizon_days = req_data["horizon_days"]
+    portfolio = req_data["portfolio"]
+    date_from = req_data["date_from"]
+    date_to = req_data["date_to"]
+    portfolio_with_data = {}
+    historical_days_list = []
+    date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
+    date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d").date()
+    print(portfolio)
+    # Get data for each portfolio item
+    for company in portfolio:
+        try:
+            data, meta = ts.get_daily_adjusted(symbol=company["symbol"], outputsize="full")
+            data = prepare_data(data, interval="daily")
+            # adjust selected datetime
+            print(f"Data from: {date_from} to {date_to}")
+            mask = (data["TradeDate"] >= date_from) & (data["TradeDate"] <= date_to)
+            data = data.loc[mask]
+            historical_days_list.append(len(data))
+            portfolio_with_data[company["symbol"]] = {
+                "value": company["value"],
+                "data": data,
+            }
+            # portfolio_with_data.append({
+            #     "symbol": company["symbol"],
+            #     "value": company["value"],
+            #     "data": data,
+            #     "meta": meta
+            # })
+        except ValueError as ex:
+            raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
+    print(portfolio_with_data)
+    historical_days = round(sum(historical_days_list)/len(historical_days_list))
+    print(f"Historical Days: {historical_days}")
+    if var_type == "historical":
+        var = portfolio_historical_var(portfolio_with_data, confidence_level, horizon_days, date_from, date_to)
+    
+    var = 10
+    res_data = {"var": var, "historical_days": historical_days}
     res_data = json.dumps(res_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
 

@@ -3,30 +3,37 @@ import { useState } from 'react';
 import BaseCard from '../components/ui/BaseCard'
 import PortfolioInvest from '../components/stock/PortfolioInvest'
 import styles from './MyPortfolio.module.css'
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 
 const MyPortfolioPage = () => {
 
     const defaultVarHistoricalDays = 200
     const defaultVarHorizonDays = 1
-    const defaultPortfloioValue = 0
+    const defaultPortflolioValue = 0
     const defaultConfidenceLevel = 99
+    const defaultDateFrom = "2017-11-17"
+    const defaultDateTo = "2018-11-16"
 
     const [companyInvestList, setCompanyInvestList] = useState([]);
     const [companyInvestSymbol, setCompanyInvestSymbol] = useState('');
     const [companyInvestValue, setCompanyInvestValue] = useState('');
     const [valueAtRisk, setValueAtRisk] = useState('');
     const [varType, setVarType] = useState('');
-    const [varHistoricalDays, setVarHistoricalDays] = useState(defaultVarHistoricalDays);
     const [varHorizonDays, setVarHorizonDays] = useState(defaultVarHorizonDays);
-    const [varPortfloioValue, setVarPortfloioValue] = useState(defaultPortfloioValue);
+    const [portfolioAnalyseData, setPortfolioAnalyseData] = useState('');
+    const [companyResultVar, setCompanyResultVar] = useState('');
+    const [varHistoricalDays, setVarHistoricalDays] = useState(defaultVarHistoricalDays);
     const [varConfidenceLevel, setVarConfidenceLevel] = useState(defaultConfidenceLevel);
-    
+    const [isLoading, setIsLoading] = useState(false);
+    const [dateFrom, setDateFrom] = useState(defaultDateFrom)
+    const [dateTo, setDateTo] = useState(defaultDateTo)
+
     const addToPortfolio = (event) => {
         console.log("hi")
         let companyAdded = {
-            companyInvestSymbol: companyInvestSymbol,
-            companyInvestValue: companyInvestValue
+            symbol: companyInvestSymbol,
+            value: Number(companyInvestValue)
         }
         setCompanyInvestList(companyInvestList => [...companyInvestList, companyAdded])
         console.log(companyInvestList)
@@ -37,7 +44,45 @@ const MyPortfolioPage = () => {
     }
 
     const calculatePortfolioVaR = (event) => {
-        console.log("hi")
+        setIsLoading(true)
+        setCompanyResultVar(null);
+        let protfolioVarData = {
+            portfolio: companyInvestList,
+            var_type: String(varType),
+            horizon_days: Number(varHorizonDays),
+            confidence_level: Number(varConfidenceLevel/100),
+            date_from: String(dateFrom),
+            date_to: String(dateTo),
+        }
+        console.log("fetch start")
+        fetch(
+            'http://localhost:8000/stock-data/portfolio-var/',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + localStorage.getItem('tokenInStorage'),
+                },
+                body: JSON.stringify(protfolioVarData)
+            }
+        )
+        .then(res => {
+            if (res.ok) {
+                console.log('[CLIENT] fetch successful');
+            } else {
+                console.log('[CLIENT] fetch NOT successful');
+            }
+            res.json().then((data) => {
+                data = JSON.parse(data)
+                setIsLoading(false);
+                setCompanyResultVar(data['var'].toFixed(2));
+                setVarHistoricalDays(data['historical_days']);
+                setPortfolioAnalyseData(data);
+            });
+        }).catch(err => {
+            console.log(err);
+            setIsLoading(false);
+        });
     }
 
     return (
@@ -87,15 +132,19 @@ const MyPortfolioPage = () => {
                         <select onChange={e => setVarType(e.target.value)} defaultValue={''}>
                             <option hidden value="" disabled>VaR type</option>
                             <option value="historical">historical simulation</option>
-                            <option value="linear_model">linear model simulation</option>
-                            <option value="monte_carlo">monte carlo simulation</option>
                         </select>
                     </div>
                     </div>
                     <div className={styles.customInputSection}>
-                        <div className={styles.customInput}>
-                            <label htmlFor='varHistoricalDays'>VaR historical days</label>
-                            <input type='number' min="10" max="10000" defaultValue={defaultVarHistoricalDays} onChange={e => setVarHistoricalDays(e.target.value)} required id='varHistoricalDays' />
+                        <div className={styles.dateInput}>
+                            <div className={styles.dateInputUnit}>
+                                <label htmlFor='varHistoricalDays'>Date from</label>
+                                <input type="date" id="start" name="date-begin" min="1900-01-02" defaultValue={defaultDateFrom} onChange={e => setDateFrom(e.target.value)}/>
+                            </div>
+                            <div className={styles.dateInputUnit}>
+                                <label htmlFor='varHistoricalDays'>Date to</label>
+                                <input type="date" id="start" name="date-end" min="1900-01-01" defaultValue={defaultDateTo} onChange={e => setDateTo(e.target.value)}/>
+                            </div>
                         </div>
                         <div className={styles.customInput}>
                             <label htmlFor='varHorizonDays'>VaR horizon in days</label>
@@ -110,6 +159,24 @@ const MyPortfolioPage = () => {
                         <button onClick={calculatePortfolioVaR}>Calculate</button>
                     </div>  
                 </BaseCard>
+                {companyResultVar &&
+                    <div className={styles.varResult}>
+                        <BaseCard>
+                            <div className={styles.varResultParameters}>
+                                <p>VaR method:</p>
+                                <p>Confidence level:</p>
+                                <p>Historical days:</p>
+                                <p>Time horizon:</p>
+                                <p>{varType}</p>
+                                <p>{varConfidenceLevel}%</p>
+                                <p>{varHistoricalDays}</p>
+                                <p>{varHorizonDays} days</p>
+                            </div>
+                            <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
+                        </BaseCard>
+                    </div>
+                }
+                { isLoading && <LoadingSpinner /> }
             </div>  
         </div>
     );

@@ -97,7 +97,7 @@ CORRECT_CALCULATE_VAR_VALUE = 195764
 
 
 def test_calculate_value_at_risk():
-    data_path = os.path.join(__file__, "..", "data.csv")
+    data_path = os.path.join(os.path.dirname(__file__), "data.csv")
     data = pd.read_csv(data_path)
     var_parameters = {
         "var_type": "historical",

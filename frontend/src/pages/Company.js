@@ -9,8 +9,8 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 const CompanyPage = () => {
 
     let today = new Date().toISOString().slice(0, 10)
-    const defaultDateFrom = "2013-01-01"
-    const defaultDateTo = today
+    const defaultDateFrom = "2017-11-17"
+    const defaultDateTo = "2018-11-16"
     const defaultVarHistoricalDays = 200
     const defaultVarHorizonDays = 1
     const defaultPortfloioValue = 1000
@@ -113,6 +113,8 @@ const CompanyPage = () => {
                 setCompanyResultPlot(data['plot']);
                 if(data['var']) {
                     setCompanyResultVar(data['var'].toFixed(2));
+                    setVarHistoricalDays(data['historical_days']);
+                    console.log(data['historical_days'])
                 }
             });
         }).catch(err => {
@@ -283,7 +285,7 @@ const CompanyPage = () => {
                             <p>{companySearchData.portfolio_value}</p>
                             <p>{companySearchData.var_type}</p>
                             <p>{companySearchData.confidence_level*100}%</p>
-                            <p>{companySearchData.historical_days}</p>
+                            <p>{varHistoricalDays}</p>
                             <p>{companySearchData.horizon_days} days</p>
                         </div>
                         <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
