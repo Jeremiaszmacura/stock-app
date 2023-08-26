@@ -9,8 +9,8 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 const CompanyPage = () => {
 
     let today = new Date().toISOString().slice(0, 10)
-    const defaultDateFrom = "2017-11-17"
-    const defaultDateTo = "2018-11-16"
+    const defaultDateFrom = "2018-11-17"
+    const defaultDateTo = "2019-11-16"
     const defaultVarHistoricalDays = 200
     const defaultVarHorizonDays = 1
     const defaultPortfloioValue = 1000

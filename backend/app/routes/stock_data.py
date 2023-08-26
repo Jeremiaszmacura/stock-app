@@ -55,7 +55,6 @@ def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
     # Rename columns names and index name
     columns_names = ["open", "high", "low", "close", "volume"]
     data.columns = columns_names
-    # print(data)
     # data["TradeDate"] = data.index
     data["TradeDate"] = data.index.date
     data["time"] = data.index.time
@@ -124,7 +123,7 @@ def calculate_returns(data: pd.Series) -> pd.Series:
 
 def calculate_log_returns(data: pd.Series) -> pd.Series:
     """Calculate normalized log returns."""
-    returns = np.log10(data) / np.log10(data.shift(1))
+    returns = np.log(data / data.shift(-1))
     returns = returns.dropna()
     return returns
 
@@ -163,34 +162,15 @@ def portfolio_historical_var(
                 include_date = False
                 break
         if include_date:
-            # print(portfolio_value)
             portfolio_values[pd_day] = portfolio_value
             
     sorted_portfolio_values = np.sort(portfolio_values)
-    print(sorted_portfolio_values)
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_portfolio_values))
     worst_portfolio_value = sorted_portfolio_values[percentile_sample_index]
     current_portfolio_value = sum(symbol_data["value"] for symbol_data in portfolio_with_data.values())
-    print(f"current_value={current_portfolio_value}")
     var = (current_portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
-    print(portfolio_value)
-    print(worst_portfolio_value)
-    print(horizon_days)
-    print(var)
-
-
-            
-    
-    # for company in portfolio_with_data:
-    #     data: pd.DataFrame = company["data"]
-    #     close_prices: pd.Series = data["close"]
-    #     returns: pd.Series = calculate_returns(close_prices)
-    #     most_recent_price: float = close_prices.values[0]
-    #     historically_simulated_prices = []
-    #     for signle_return in returns:
-    #         historically_simulated_prices.append(most_recent_price*signle_return)
-        
+    return var
 
 
 def historical_simulation_var(
@@ -204,7 +184,6 @@ def historical_simulation_var(
     first_return = max(len(returns) - historical_days, 0)
     returns_subset: pd.Series = returns[first_return:]
     sorted_returns = np.sort(returns_subset)    
-    print(sorted_returns*100)
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_returns))
     worst_portfolio_value = sorted_returns[percentile_sample_index] * portfolio_value
@@ -262,7 +241,6 @@ def calculate_value_at_risk(
     """Calcualte Value at Risk."""
     data = data["close"]
     returns = calculate_returns(data)
-    # returns = calculate_log_returns(data)
 
     if var_type == "historical":
         var = historical_simulation_var(
@@ -285,9 +263,49 @@ def calculate_value_at_risk(
     return var
 
 
-def calculate_hurst_exponent():
-    # TODO
-    print("calculate_hurst_exponent")
+def plot_hurst_eponent(intervals: list, data: list) -> float:
+    fig, ax = plt.subplots()
+    plt.xscale("log")
+    plt.yscale("log")
+    ax.plot(intervals, data)
+    a, b = np.polyfit(np.log(intervals), np.log(data), 1)
+    plt.plot(intervals, [np.exp(y) for y in [a * np.log(x) + b for x in intervals]])
+    plt.show()
+    return a
+
+
+def calculate_hurst_exponent(
+    data: pd.DataFrame,
+):
+    data = data["close"]
+    # 1. logarytmiczna stopy zwrotu
+    log_returns = calculate_log_returns(data)
+    # 2. Dzielimy szereg ogarytmiczne stopy zwrotu na m części złożonych z n elementów
+    ro = []
+    intervals = range(5, int(len(log_returns-1)/2))
+    for n in intervals:
+        m = int(len(log_returns) / n)
+        z = np.zeros(shape=(m,n))
+        u = np.zeros(shape=(m,n))
+        r = np.zeros(shape=m)
+        s = np.zeros(shape=m)
+        ro_iter = np.zeros(shape=m)
+        for i in range(m):
+            y_mean = np.mean(log_returns[i*n:(i+1)*n])
+            for j in range(n):
+                # 3.
+                z[i][j] = log_returns[i*n+j] - y_mean
+                # 4.
+                u[i][j] = np.sum(z[i])
+            # 5.
+            r[i] = np.max(u[i] - np.min(u[i]))
+            # 6. Liczymy odchylenie standardowe i nastepnie ro
+            s[i] = np.std(z[i])
+        ro_iter = r/s
+        ro.append(np.mean(ro_iter))
+    hurst_exponent = plot_hurst_eponent(intervals, ro)
+    print(type(hurst_exponent))
+    print(hurst_exponent)
 
 
 @router.post("/", response_description="Stock data retrieved")
@@ -366,7 +384,7 @@ async def calculate_stock_data(
             res_data["var"] = var
             res_data["historical_days"] = historical_days
         if statistic == "hurst":
-            calculate_hurst_exponent()
+            calculate_hurst_exponent(data)
 
     # Add Analyse data to history of current loged in user
     if user:
@@ -384,7 +402,6 @@ async def calculate_portfolio_var(
     req_data: GetPortfolioData, token: str = Depends(oauth2_scheme)
 ) -> JSONResponse:
     req_data: dict = jsonable_encoder(req_data)
-    print(req_data)
     var_type = req_data["var_type"]
     confidence_level = req_data["confidence_level"]
     horizon_days = req_data["horizon_days"]
@@ -395,7 +412,6 @@ async def calculate_portfolio_var(
     historical_days_list = []
     date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d").date()
     date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d").date()
-    print(portfolio)
     # Get data for each portfolio item
     for company in portfolio:
         try:
@@ -418,13 +434,10 @@ async def calculate_portfolio_var(
             # })
         except ValueError as ex:
             raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
-    print(portfolio_with_data)
     historical_days = round(sum(historical_days_list)/len(historical_days_list))
-    print(f"Historical Days: {historical_days}")
     if var_type == "historical":
         var = portfolio_historical_var(portfolio_with_data, confidence_level, horizon_days, date_from, date_to)
-    
-    var = 10
+
     res_data = {"var": var, "historical_days": historical_days}
     res_data = json.dumps(res_data)
     return JSONResponse(status_code=status.HTTP_200_OK, content=res_data)
