@@ -270,20 +270,24 @@ def plot_hurst_eponent(intervals: list, data: list) -> float:
     ax.plot(intervals, data)
     a, b = np.polyfit(np.log(intervals), np.log(data), 1)
     plt.plot(intervals, [np.exp(y) for y in [a * np.log(x) + b for x in intervals]])
-    plt.show()
-    return a
+    ax.set_xlabel("Długość segmentu (log)", fontsize=8, labelpad=6, fontweight="bold")
+    ax.set_ylabel("Średnie odchylenie stadardowe (log)", fontsize=8, labelpad=6, fontweight="bold")
+    ax.set_title("Średnie odchylenie standardowe zaleźne od długoścu segmentu", fontsize=9, pad=12, fontweight="bold")
+    buf = BytesIO()
+    fig.savefig(buf, format="png", dpi=300)
+    plot = base64.b64encode(buf.getbuffer()).decode("ascii")
+    return a, plot
 
 
-def calculate_hurst_exponent(
-    data: pd.DataFrame,
-):
+def calculate_hurst_exponent(data: pd.DataFrame):
     data = data["close"]
     # 1. logarytmiczna stopy zwrotu
     log_returns = calculate_log_returns(data)
-    # 2. Dzielimy szereg ogarytmiczne stopy zwrotu na m części złożonych z n elementów
     ro = []
+    # 9. powtarzamy kroki <3, 8>, każdorazowo zwiększając długość przedziału m o jeden do momentu aż n osiągnie górną granicę
     intervals = range(5, int(len(log_returns-1)/2))
     for n in intervals:
+        # 2. Dzielimy szereg stóp procentowych na m części złożonych z n elementów
         m = int(len(log_returns) / n)
         z = np.zeros(shape=(m,n))
         u = np.zeros(shape=(m,n))
@@ -293,19 +297,22 @@ def calculate_hurst_exponent(
         for i in range(m):
             y_mean = np.mean(log_returns[i*n:(i+1)*n])
             for j in range(n):
-                # 3.
+                # 3.Definiujemy z_ij
                 z[i][j] = log_returns[i*n+j] - y_mean
-                # 4.
+                # 4.Ciag sum czesciowych
                 u[i][j] = np.sum(z[i])
-            # 5.
-            r[i] = np.max(u[i] - np.min(u[i]))
-            # 6. Liczymy odchylenie standardowe i nastepnie ro
+            # 5. Liczymy odchylenie standardowe
             s[i] = np.std(z[i])
+            # 6. Określamy zakres i-tego przedziału
+            r[i] = np.max(u[i] - np.min(u[i]))
+        # 7. Normalizujemy wartości i-tego przedziału
         ro_iter = r/s
+        # 8. Obliczamy średnią wartość znormalizowanego i-tego przedziału
         ro.append(np.mean(ro_iter))
-    hurst_exponent = plot_hurst_eponent(intervals, ro)
-    print(type(hurst_exponent))
+    # 10,11. nachylenie prostej średniego odchylenia standardowego zależnego od długości segmentów na skali logarytmicznej to wykladnik Hursta
+    hurst_exponent, hurst_plot = plot_hurst_eponent(intervals, ro)
     print(hurst_exponent)
+    return hurst_exponent, hurst_plot
 
 
 @router.post("/", response_description="Stock data retrieved")
@@ -375,7 +382,7 @@ async def calculate_stock_data(
 
     plot = plot_data(plot_type, data, meta, name, interval)
     res_data = {"plot": plot}
-    data.to_csv("file_name.csv", encoding="utf-8")
+    # data.to_csv("file_name.csv", encoding="utf-8")
     for statistic in req_data["calculate"]:
         if statistic == "var":
             var = calculate_value_at_risk(
@@ -384,7 +391,9 @@ async def calculate_stock_data(
             res_data["var"] = var
             res_data["historical_days"] = historical_days
         if statistic == "hurst":
-            calculate_hurst_exponent(data)
+            hurst_exponent, hurst_plot = calculate_hurst_exponent(data)
+            res_data["hurst_exponent"] = hurst_exponent
+            res_data["hurst_plot"] = hurst_plot
 
     # Add Analyse data to history of current loged in user
     if user:

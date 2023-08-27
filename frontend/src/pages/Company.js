@@ -24,6 +24,8 @@ const CompanyPage = () => {
     const [dateTo, setDateTo] = useState(defaultDateTo)
     const [plotType, setPlotType] = useState()
     const [companyResultPlot, setCompanyResultPlot] = useState('');
+    const [companyHurstExponent, setCompanyHurstExponent] = useState('');
+    const [companyHurstPlot, setCompanyHurstPlot] = useState('');
     const [companyResultVar, setCompanyResultVar] = useState('');
     const [selectedInterval, setSelectedInterval] = useState('');
     const [valueAtRisk, setValueAtRisk] = useState('');
@@ -115,6 +117,10 @@ const CompanyPage = () => {
                     setCompanyResultVar(data['var'].toFixed(2));
                     setVarHistoricalDays(data['historical_days']);
                     console.log(data['historical_days'])
+                }
+                if(data['hurst_exponent']) {
+                    setCompanyHurstExponent(data['hurst_exponent'].toFixed(4));
+                    setCompanyHurstPlot(data['hurst_plot']);
                 }
             });
         }).catch(err => {
@@ -291,16 +297,32 @@ const CompanyPage = () => {
                         <p id={styles.varValue}> Value at Risk: {companyResultVar} </p>
                     </BaseCard>
                 </div>
-                }
-                {companyResultPlot &&
-                    <div>
-                        <div className={styles.plot}>
-                            <div className={styles.plotBox}>
-                                <img src={`data:image/png;base64,${companyResultPlot}`} alt='Plot'/>
-                            </div>
+            }
+            {companyHurstExponent &&
+                <div className={styles.varResult}>
+                <BaseCard>
+                    <p id={styles.varValue}> Hurst Exponent: {companyHurstExponent} </p>
+                </BaseCard>
+            </div>
+            }
+            {companyHurstPlot &&
+                <div>
+                    <div className={styles.plot}>
+                        <div className={styles.plotBox}>
+                            <img src={`data:image/png;base64,${companyHurstPlot}`} alt='Plot'/>
                         </div>
                     </div>
-                }
+                </div>
+            }
+            {companyResultPlot &&
+                <div>
+                    <div className={styles.plot}>
+                        <div className={styles.plotBox}>
+                            <img src={`data:image/png;base64,${companyResultPlot}`} alt='Plot'/>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
         
     );
