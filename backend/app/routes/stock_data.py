@@ -138,7 +138,7 @@ def portfolio_historical_var(
     confidence_level: float,
     horizon_days: int,
     date_from: datetime.date,
-    date_to: datetime.date
+    date_to: datetime.date,
 ) -> float:
     # calculate returns
     # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
@@ -157,18 +157,20 @@ def portfolio_historical_var(
             value = symbol_data["value"]
             returns: pd.Series = symbol_data["returns"]
             if pd_day in returns:
-                portfolio_value += value*returns[pd_day]
+                portfolio_value += value * returns[pd_day]
             else:
                 include_date = False
                 break
         if include_date:
             portfolio_values[pd_day] = portfolio_value
-            
+
     sorted_portfolio_values = np.sort(portfolio_values)
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_portfolio_values))
     worst_portfolio_value = sorted_portfolio_values[percentile_sample_index]
-    current_portfolio_value = sum(symbol_data["value"] for symbol_data in portfolio_with_data.values())
+    current_portfolio_value = sum(
+        symbol_data["value"] for symbol_data in portfolio_with_data.values()
+    )
     var = (current_portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
     return var
 
@@ -183,7 +185,7 @@ def historical_simulation_var(
     """Calculate Value at Risk using historical simulation method."""
     first_return = max(len(returns) - historical_days, 0)
     returns_subset: pd.Series = returns[first_return:]
-    sorted_returns = np.sort(returns_subset)    
+    sorted_returns = np.sort(returns_subset)
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_returns))
     worst_portfolio_value = sorted_returns[percentile_sample_index] * portfolio_value
@@ -214,7 +216,7 @@ def monte_carlo_var(
     portfolio_value: int | float,
     historical_days: int,
     horizon_days: int,
-    number_of_samples: int = 5000
+    number_of_samples: int = 5000,
 ) -> float:
     """Calculate Value at Risk using monte carlo simulation."""
     first_return = max(len(returns) - historical_days, 0)
@@ -222,7 +224,7 @@ def monte_carlo_var(
     std_dev = np.std(returns_subset)
     # loc=Mean(center), scale=Std(Spread/Width)
     norm_distribution_samples = np.random.normal(loc=0, scale=std_dev, size=number_of_samples)
-    sorted_norm_distribution_samples = np.sort(norm_distribution_samples)    
+    sorted_norm_distribution_samples = np.sort(norm_distribution_samples)
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_norm_distribution_samples))
     one_day_var = portfolio_value * sorted_norm_distribution_samples[percentile_sample_index]
@@ -272,7 +274,12 @@ def plot_hurst_eponent(intervals: list, data: list) -> float:
     plt.plot(intervals, [np.exp(y) for y in [a * np.log(x) + b for x in intervals]])
     ax.set_xlabel("Długość segmentu (log)", fontsize=8, labelpad=6, fontweight="bold")
     ax.set_ylabel("Średnie odchylenie stadardowe (log)", fontsize=8, labelpad=6, fontweight="bold")
-    ax.set_title("Średnie odchylenie standardowe zaleźne od długoścu segmentu", fontsize=9, pad=12, fontweight="bold")
+    ax.set_title(
+        "Średnie odchylenie standardowe zaleźne od długoścu segmentu",
+        fontsize=9,
+        pad=12,
+        fontweight="bold",
+    )
     buf = BytesIO()
     fig.savefig(buf, format="png", dpi=300)
     plot = base64.b64encode(buf.getbuffer()).decode("ascii")
@@ -285,20 +292,20 @@ def calculate_hurst_exponent(data: pd.DataFrame):
     log_returns = calculate_log_returns(data)
     ro = []
     # 9. powtarzamy kroki <3, 8>, każdorazowo zwiększając długość przedziału m o jeden do momentu aż n osiągnie górną granicę
-    intervals = range(5, int(len(log_returns-1)/2))
+    intervals = range(5, int(len(log_returns - 1) / 2))
     for n in intervals:
         # 2. Dzielimy szereg stóp procentowych na m części złożonych z n elementów
         m = int(len(log_returns) / n)
-        z = np.zeros(shape=(m,n))
-        u = np.zeros(shape=(m,n))
+        z = np.zeros(shape=(m, n))
+        u = np.zeros(shape=(m, n))
         r = np.zeros(shape=m)
         s = np.zeros(shape=m)
         ro_iter = np.zeros(shape=m)
         for i in range(m):
-            y_mean = np.mean(log_returns[i*n:(i+1)*n])
+            y_mean = np.mean(log_returns[i * n : (i + 1) * n])
             for j in range(n):
                 # 3.Definiujemy z_ij
-                z[i][j] = log_returns[i*n+j] - y_mean
+                z[i][j] = log_returns[i * n + j] - y_mean
                 # 4.Ciag sum czesciowych
                 u[i][j] = np.sum(z[i])
             # 5. Liczymy odchylenie standardowe
@@ -306,7 +313,7 @@ def calculate_hurst_exponent(data: pd.DataFrame):
             # 6. Określamy zakres i-tego przedziału
             r[i] = np.max(u[i] - np.min(u[i]))
         # 7. Normalizujemy wartości i-tego przedziału
-        ro_iter = r/s
+        ro_iter = r / s
         # 8. Obliczamy średnią wartość znormalizowanego i-tego przedziału
         ro.append(np.mean(ro_iter))
     # 10,11. nachylenie prostej średniego odchylenia standardowego zależnego od długości segmentów na skali logarytmicznej to wykladnik Hursta
@@ -369,7 +376,7 @@ async def calculate_stock_data(
     # print(data)
     # data.to_csv("wtf", sep=',')
     # print(len(data.index))
-    
+
     if "var" in req_data["calculate"]:
         var_type = req_data["var_type"]
         portfolio_value = req_data["portfolio_value"]
@@ -378,7 +385,7 @@ async def calculate_stock_data(
         if len(data) < req_data["historical_days"]:
             historical_days = len(data)
         else:
-            historical_days = req_data["historical_days"]  
+            historical_days = req_data["historical_days"]
 
     plot = plot_data(plot_type, data, meta, name, interval)
     res_data = {"plot": plot}
@@ -443,9 +450,11 @@ async def calculate_portfolio_var(
             # })
         except ValueError as ex:
             raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
-    historical_days = round(sum(historical_days_list)/len(historical_days_list))
+    historical_days = round(sum(historical_days_list) / len(historical_days_list))
     if var_type == "historical":
-        var = portfolio_historical_var(portfolio_with_data, confidence_level, horizon_days, date_from, date_to)
+        var = portfolio_historical_var(
+            portfolio_with_data, confidence_level, horizon_days, date_from, date_to
+        )
 
     res_data = {"var": var, "historical_days": historical_days}
     res_data = json.dumps(res_data)
