@@ -135,19 +135,12 @@ def daterange(start_date, end_date):
 
 def portfolio_historical_var(
     portfolio_with_data: dict,
+    symbol_data: pd.Series,
     confidence_level: float,
     horizon_days: int,
     date_from: datetime.date,
     date_to: datetime.date,
 ) -> float:
-    # calculate returns
-    # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
-    for symbol_data in portfolio_with_data.values():
-        data = symbol_data["data"]
-        close_prices: pd.Series = data["close"]
-        returns: pd.Series = calculate_returns(close_prices)
-        symbol_data["returns"] = returns
-
     portfolio_values = pd.Series()
     for day in daterange(date_from, date_to + datetime.timedelta(1)):
         pd_day = pd.Timestamp(day)
@@ -291,7 +284,7 @@ def calculate_hurst_exponent(data: pd.DataFrame):
     # 1. logarytmiczna stopy zwrotu
     log_returns = calculate_log_returns(data)
     ro = []
-    # 9. powtarzamy kroki <3, 8>, każdorazowo zwiększając długość przedziału m o jeden do momentu aż n osiągnie górną granicę
+    # 9. powtarzamy kroki <2, 8>, każdorazowo zwiększając długość przedziału m o jeden do momentu aż n osiągnie górną granicę
     intervals = range(5, int(len(log_returns - 1) / 2))
     for n in intervals:
         # 2. Dzielimy szereg stóp procentowych na m części złożonych z n elementów
@@ -452,8 +445,15 @@ async def calculate_portfolio_var(
             raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
     historical_days = round(sum(historical_days_list) / len(historical_days_list))
     if var_type == "historical":
+            # calculate returns
+    # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
+        for symbol_data in portfolio_with_data.values():
+            data = symbol_data["data"]
+            close_prices: pd.Series = data["close"]
+            returns: pd.Series = calculate_returns(close_prices)
+            symbol_data["returns"] = returns
         var = portfolio_historical_var(
-            portfolio_with_data, confidence_level, horizon_days, date_from, date_to
+            portfolio_with_data, symbol_data, confidence_level, horizon_days, date_from, date_to
         )
 
     res_data = {"var": var, "historical_days": historical_days}
