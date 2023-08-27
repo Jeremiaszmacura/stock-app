@@ -272,10 +272,10 @@ def plot_hurst_eponent(intervals: list, data: list) -> float:
     ax.plot(intervals, data)
     a, b = np.polyfit(np.log(intervals), np.log(data), 1)
     plt.plot(intervals, [np.exp(y) for y in [a * np.log(x) + b for x in intervals]])
-    ax.set_xlabel("Długość segmentu (log)", fontsize=8, labelpad=6, fontweight="bold")
-    ax.set_ylabel("Średnie odchylenie stadardowe (log)", fontsize=8, labelpad=6, fontweight="bold")
+    ax.set_xlabel("Segment length (log)", fontsize=8, labelpad=6, fontweight="bold")
+    ax.set_ylabel("Mean standard deviation (log)", fontsize=8, labelpad=6, fontweight="bold")
     ax.set_title(
-        "Średnie odchylenie standardowe zaleźne od długoścu segmentu",
+        "Mean standard deviation depending on segment length",
         fontsize=9,
         pad=12,
         fontweight="bold",
