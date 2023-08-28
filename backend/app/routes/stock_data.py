@@ -19,6 +19,7 @@ from stock_api import ts
 import numpy as np
 from scipy.stats import norm
 from pydantic import parse_obj_as
+from scipy.stats import shapiro
 
 from schemas.stock import GetStockData, GetPortfolioData
 from schemas.user import UserOut
@@ -50,8 +51,9 @@ def prepare_search_data(data: list[dict]) -> list[dict]:
 
 def prepare_data(data: pd.DataFrame, interval: str) -> pd.DataFrame:
     """Preparation of retrieved data from api for further calculations and plotting."""
-    if interval == "daily":
-        data = data[["1. open", "2. high", "3. low", "4. close", "6. volume"]]
+    print(data)
+    # if interval == "daily":
+    #     data = data[["1. open", "2. high", "3. low", "4. close", "6. volume"]]
     # Rename columns names and index name
     columns_names = ["open", "high", "low", "close", "volume"]
     data.columns = columns_names
@@ -315,6 +317,45 @@ def calculate_hurst_exponent(data: pd.DataFrame):
     return hurst_exponent, hurst_plot
 
 
+def check_normal_distribution():
+    data = [
+        53.82,
+        52.35,
+        50.26,
+        87.71,
+        39.76,
+        36.79,
+        65.69,
+        45.53,
+        63.34,
+        65.86,
+        82.35,
+        49.10,
+        43.36,
+        14.86,
+        52.53,
+        61.04,
+        49.53,
+        41.55,
+        67.58,
+        43.77,
+        54.66,
+        42.46,
+        53.26,
+        47.05
+        ]
+    print('hehe')
+    plt.hist(data, edgecolor='black', bins=10)
+    shapiro_result = shapiro(data)
+    print(shapiro_result)
+    plt.show()
+
+
+@router.get("/check-norm", response_description="Stock data retrieved")
+async def search_stock_data():
+    check_normal_distribution()
+
+
 @router.post("/", response_description="Stock data retrieved")
 async def calculate_stock_data(
     req_data: GetStockData, token: str = Depends(oauth2_scheme)
@@ -329,7 +370,6 @@ async def calculate_stock_data(
             user_availability = False
         else:
             user_availability = True
-
     data: pd.DataFrame
     meta: dict
     req_data: dict = jsonable_encoder(req_data)
@@ -348,7 +388,7 @@ async def calculate_stock_data(
         elif interval == "weekly":
             data, meta = ts.get_weekly(symbol=symbol)
         elif interval == "daily":
-            data, meta = ts.get_daily_adjusted(symbol=symbol, outputsize="full")
+            data, meta = ts.get_daily(symbol=symbol, outputsize="full")
         else:
             data, meta = ts.get_intraday(symbol=symbol, interval=interval, outputsize="full")
     except ValueError as ex:
@@ -474,6 +514,7 @@ async def search_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
         user_availability = True
 
     try:
+        print("#################")
         url = f"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey=D6Q2O1GZ0MZO4FO0"
         r: requests.Response = requests.get(url)
         data: dict = r.json()
