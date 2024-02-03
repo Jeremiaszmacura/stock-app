@@ -19,9 +19,7 @@ def calculate_value_at_risk(
     # returns = calculate_log_returns(data)
 
     if var_type == "historical":
-        var = historical_simulation_var(
-            returns, confidence_level, portfolio_value, historical_days, horizon_days
-        )
+        var = historical_simulation_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
     # if var_type == "linear_model":
     #     var = linear_model_var(
     #         returns, confidence_level, portfolio_value, historical_days, horizon_days
@@ -61,9 +59,7 @@ def historical_simulation_var(
     return var
 
 
-time_index = pd.DatetimeIndex(
-    ["2023-08-14", "2023-08-15", "2023-08-16", "2023-08-17", "2023-08-18"]
-)
+time_index = pd.DatetimeIndex(["2023-08-14", "2023-08-15", "2023-08-16", "2023-08-17", "2023-08-18"])
 CLOSE_PRICE_DATA = pd.Series([10, 20, 30, 90, 45], index=time_index)
 CLOSE_PRICE_DATA_RETURNS_LIST = [2.0, 1.5, 3.0, 0.5]
 
@@ -74,9 +70,7 @@ def test_calculate_returns():
     assert returns == CLOSE_PRICE_DATA_RETURNS_LIST
 
 
-time_index = pd.DatetimeIndex(
-    ["2023-08-14", "2023-08-15", "2023-08-16", "2023-08-17", "2023-08-18"]
-)
+time_index = pd.DatetimeIndex(["2023-08-14", "2023-08-15", "2023-08-16", "2023-08-17", "2023-08-18"])
 CLOSE_PRICE_DATA_RETURNS = pd.Series([1.1, 1.2, 1.1, 0.9], index=time_index[1:])
 HISTORICAL_VAR_PARAMETERS = {
     "returns": CLOSE_PRICE_DATA_RETURNS,

@@ -74,9 +74,7 @@ async def create_students(user: UserCreate) -> JSONResponse:
     """
     user: dict = jsonable_encoder(user)
     if user["password"] != user["confirm_password"]:
-        raise HTTPException(
-            status_code=400, detail=f"Password and confirm password are not the same."
-        )
+        raise HTTPException(status_code=400, detail=f"Password and confirm password are not the same.")
     try:
         del user["confirm_password"]
     except KeyError:

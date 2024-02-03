@@ -87,12 +87,8 @@ def candle_stick_plot(data: pd.DataFrame):
     plt.bar(up.index, up.low - up.open, shadow_width, bottom=up.open, color=up_shadow_color)
     # Plotting down prices of the stock
     plt.bar(down.index, down.close - down.open, bar_width, bottom=down.open, color=down_color)
-    plt.bar(
-        down.index, down.high - down.open, shadow_width, bottom=down.open, color=down_shadow_color
-    )
-    plt.bar(
-        down.index, down.low - down.close, shadow_width, bottom=down.close, color=down_shadow_color
-    )
+    plt.bar(down.index, down.high - down.open, shadow_width, bottom=down.open, color=down_shadow_color)
+    plt.bar(down.index, down.low - down.close, shadow_width, bottom=down.close, color=down_shadow_color)
 
 
 def plot_data(plot_type: str, data: pd.DataFrame, meta: dict, name: str, frequency: str):
@@ -163,9 +159,7 @@ def portfolio_historical_var(
     percentile = 1 - confidence_level
     percentile_sample_index = int(percentile * len(sorted_portfolio_values))
     worst_portfolio_value = sorted_portfolio_values[percentile_sample_index]
-    current_portfolio_value = sum(
-        symbol_data["value"] for symbol_data in portfolio_with_data.values()
-    )
+    current_portfolio_value = sum(symbol_data["value"] for symbol_data in portfolio_with_data.values())
     var = (current_portfolio_value - worst_portfolio_value) * np.sqrt(horizon_days)
     return var
 
@@ -240,17 +234,11 @@ def calculate_value_at_risk(
     returns = calculate_returns(data)
 
     if var_type == "historical":
-        var = historical_simulation_var(
-            returns, confidence_level, portfolio_value, historical_days, horizon_days
-        )
+        var = historical_simulation_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
     if var_type == "linear_model":
-        var = linear_model_var(
-            returns, confidence_level, portfolio_value, historical_days, horizon_days
-        )
+        var = linear_model_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
     if var_type == "monte_carlo":
-        var = monte_carlo_var(
-            returns, confidence_level, portfolio_value, historical_days, horizon_days
-        )
+        var = monte_carlo_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
 
     res = "The VaR at the %.2f confidence level and portfolio value %.2f is %.2f" % (
         confidence_level,
@@ -342,10 +330,10 @@ def check_normal_distribution():
         54.66,
         42.46,
         53.26,
-        47.05
-        ]
-    print('hehe')
-    plt.hist(data, edgecolor='black', bins=10)
+        47.05,
+    ]
+    print("hehe")
+    plt.hist(data, edgecolor="black", bins=10)
     shapiro_result = shapiro(data)
     print(shapiro_result)
     plt.show()
@@ -357,9 +345,7 @@ async def search_stock_data():
 
 
 @router.post("/", response_description="Stock data retrieved")
-async def calculate_stock_data(
-    req_data: GetStockData, token: str = Depends(oauth2_scheme)
-) -> JSONResponse:
+async def calculate_stock_data(req_data: GetStockData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
     """Endpoint to get data and calculate statistics for specified company."""
     # Check if user is logged in
     user = None
@@ -447,9 +433,7 @@ async def calculate_stock_data(
 
 
 @router.post("/portfolio-var", response_description="Stock data retrieved")
-async def calculate_portfolio_var(
-    req_data: GetPortfolioData, token: str = Depends(oauth2_scheme)
-) -> JSONResponse:
+async def calculate_portfolio_var(req_data: GetPortfolioData, token: str = Depends(oauth2_scheme)) -> JSONResponse:
     req_data: dict = jsonable_encoder(req_data)
     var_type = req_data["var_type"]
     confidence_level = req_data["confidence_level"]
@@ -485,8 +469,8 @@ async def calculate_portfolio_var(
             raise HTTPException(status_code=400, detail=f"incorrect symbol value. {ex}")
     historical_days = round(sum(historical_days_list) / len(historical_days_list))
     if var_type == "historical":
-            # calculate returns
-    # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
+        # calculate returns
+        # TODO (probably): move out of this function and you don't need to pass prices then, just returns to this function
         for symbol_data in portfolio_with_data.values():
             data = symbol_data["data"]
             close_prices: pd.Series = data["close"]
