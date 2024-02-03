@@ -1,3 +1,4 @@
+# Docker-compose to run database for local development porposes
 version: '3.8'
 
 services:

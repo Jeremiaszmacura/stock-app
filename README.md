@@ -1,58 +1,47 @@
-<hr />
+# Development Guide
+
+## Backend
 
 ### Create python virutal enviroment
 
-<hr />
-
-Create and active virtual enviroment using venv library:
-
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate (Linux)
-.venv\Scripts\activate (Windows)
+cd backend
 ```
 
-In some Windows cases before activating venv:
+Unix
 
 ```sh
+python -m venv .venv
+source .venv/bin/activate
+```
+
+Windows (PowerShell)
+
+```sh
+python -m venv .venv
 Set-ExecutionPolicy Unrestricted -Scope Process
+.venv\Scripts\activate
 ```
 
-<hr />
-
-### Install dependecies
-
-<hr />
+### Install DEV dependecies
 
 ```sh
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
 ```
-
-<hr />
 
 ### Start database
-
-<hr />
 
 ```sh
 docker-compose up
 ```
 
-<hr />
-
-### Run app
-
-<hr />
+### Run backend app
 
 ```sh
 uvicorn main:app --reload
 ```
 
-<hr />
-
 ### Api docs
-
-<hr />
 
 Swagger UI
 
@@ -66,56 +55,22 @@ ReDoc
 http://127.0.0.1:8000/redoc
 ```
 
-<hr />
-
 ### OpenAPI schema
-
-<hr />
 
 ```text
 http://127.0.0.1:8000/openapi.json
 ```
 
-<hr />
+### Mongo-express
 
-### Run linters
-
-<hr />
-
-Pylint
-
-```sh
-python -m pylint backend
+```text
+localhost:8081
 ```
 
-Black check
+### Run pre-commit
 
 ```sh
-python -m black --check backend
-```
-
-Black fix
-
-```sh
-python -m black backend
-```
-
-<hr />
-
-Dockerfile backend
-
-<hr />
-
-Build backend app
-
-```sh
-docker build -t stock_backend -f backend.dockerfile .
-```
-
-Run backend app
-
-```sh
-docker run -d --name stock_backend -p 80:80 stock_backend
+pre-commit run -a
 ```
 
 App is avaiable under URL:

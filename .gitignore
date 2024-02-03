@@ -4,3 +4,4 @@ sql_app.db
 .env
 mongo-data
 node_modules
+.pytest_cache
