@@ -48,7 +48,7 @@ const LoginPage = () => {
                     <LoginForm onRegister={registerHandler} />
                 </Card>
             </div>
-            
+
         </section>
     );
 }

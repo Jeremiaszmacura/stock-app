@@ -20,7 +20,7 @@ const SearchBar = (props) => {
         event.preventDefault();
         setSearchInput(event.target.value);
       };
-    
+
     const searchHandler = (event) => {
         event.preventDefault();
         if (!searchInput) {

@@ -47,7 +47,7 @@ const App = () => {
           <Layout>
             <Routes>
               <Route path='/' exact element={<HomePage />}>
-              </Route>    
+              </Route>
               <Route path='/VAR' exact element={<VARPage />}>
               </Route>
               <Route path='/company' exact element={<CompanyPage />}>
@@ -59,9 +59,9 @@ const App = () => {
               <Route path='/incandreq' exact element={<IncAndReqPage />}>
               </Route>
               <Route path='/register' exact element={<RegisterPage />}>
-              </Route>  
+              </Route>
               <Route path='/login' exact element={<LoginPage />}>
-              </Route>  
+              </Route>
             </Routes>
           </Layout>
         </AdminContext.Provider>

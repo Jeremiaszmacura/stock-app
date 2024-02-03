@@ -50,7 +50,7 @@ const CompanyPage = () => {
             setValueAtRisk('');
             setVarType('');
             varRef.current.style.backgroundColor = "rgba(0, 204, 255, 0.116)";
-        } 
+        }
     }
 
     const intervalSearchHandler = (event) => {
@@ -274,7 +274,7 @@ const CompanyPage = () => {
             </div>
             </div>
             { isLoading && <LoadingSpinner /> }
-            { errorMessage && 
+            { errorMessage &&
             <div className={styles.errorMessageContainer}>
                 <p>{errorMessage}</p>
             </div>
@@ -324,7 +324,7 @@ const CompanyPage = () => {
                 </div>
             }
         </div>
-        
+
     );
 }
 

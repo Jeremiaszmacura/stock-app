@@ -100,7 +100,7 @@ const MyPortfolioPage = () => {
                         </div>
                         <div id={styles.selectButtonAdd}>
                             <button onClick={addToPortfolio}>Add</button>
-                        </div>  
+                        </div>
                     </div>
                 </BaseCard>
                 <BaseCard>
@@ -115,13 +115,13 @@ const MyPortfolioPage = () => {
                                     companyInvestList
                                     setCompanyInvestList
                                     />
-                                ))} 
+                                ))}
                             </div>
                         }
                         {companyInvestList.length == 0 &&
                             <p id={styles.emptyPortfolio}>Portfolio empty</p>
                         }
-                    </div> 
+                    </div>
                 </BaseCard>
             </div>
             <div className={styles.portfolioVar}>
@@ -157,7 +157,7 @@ const MyPortfolioPage = () => {
                     </div>
                     <div id={styles.selectButton}>
                         <button onClick={calculatePortfolioVaR}>Calculate</button>
-                    </div>  
+                    </div>
                 </BaseCard>
                 {companyResultVar &&
                     <div className={styles.varResult}>
@@ -177,7 +177,7 @@ const MyPortfolioPage = () => {
                     </div>
                 }
                 { isLoading && <LoadingSpinner /> }
-            </div>  
+            </div>
         </div>
     );
 }

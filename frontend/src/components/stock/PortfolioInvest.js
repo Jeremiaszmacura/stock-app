@@ -30,7 +30,7 @@ const PortfolioInvest = (props) => {
                         <Trash size={20} />
                     </span>
                 {/* </button> */}
-                
+
             </div>
         </div>
     );

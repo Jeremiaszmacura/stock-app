@@ -18,7 +18,7 @@ const SearchResult = (props) => {
                 currency={company.currency}
                 matchScore={company.matchScore}
                 />
-            ))} 
+            ))}
         </ul>
     );
 }

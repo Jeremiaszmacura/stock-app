@@ -69,7 +69,7 @@ const LoginPage = () => {
                     <LoginForm onLogin={loginHandler} />
                 </Card>
             </div>
-            
+
         </section>
     );
 }

@@ -112,7 +112,7 @@ const DashboardPage = () => {
                 </div>
                 <div id={styles.selectButtonAdd}>
                     <button onClick={updateUser}>Update</button>
-                </div>  
+                </div>
             </div>
             </BaseCard>
             <BaseCard>

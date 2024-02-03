@@ -27,7 +27,7 @@ const AnalysesHistory = (props) => {
                 currency={analysed.currency}
                 matchScore={analysed.matchScore}
                 />
-            ))} 
+            ))}
         </ul>
     );
 }

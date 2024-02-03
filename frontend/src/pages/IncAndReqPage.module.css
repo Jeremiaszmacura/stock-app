@@ -1,21 +1,21 @@
 .form {
     padding: 2rem;
   }
-  
+
   .control {
     margin-bottom: 0.5rem;
   }
-  
+
   .control label {
     display: block;
     font-weight: bold;
     text-align: center;
     margin-bottom: 0.5rem;
   }
-  
+
   .control input,
   .control textarea {
-    background: rgba(255, 255, 255, .1); 
+    background: rgba(255, 255, 255, .1);
     display: block;
     margin: 0 auto;
     font: inherit;
@@ -25,7 +25,7 @@
     width: 18rem;
     color: #ccc;
   }
-  
+
   .actions {
     margin-top: 1rem;
     text-align: center;

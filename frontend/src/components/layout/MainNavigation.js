@@ -11,8 +11,8 @@ const MainNavigation = () => {
     const { admin, setAdmin } = useContext(AdminContext);
     const navigate = useNavigate();
 
-    const routeChange = () => { 
-        const path = '/'; 
+    const routeChange = () => {
+        const path = '/';
         navigate(path);
       }
 
@@ -48,7 +48,7 @@ const MainNavigation = () => {
                     </li>
                     <li>
                         <Link className={styles.a} to='/VAR'>About VaR</Link>
-                    </li>   
+                    </li>
             {user ? (
                 <>
                 <li>

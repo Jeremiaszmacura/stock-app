@@ -500,7 +500,7 @@ async def search_stock_data(symbol: str, token: str = Depends(oauth2_scheme)):
     try:
         print("#################")
         url = f"https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={symbol}&apikey=D6Q2O1GZ0MZO4FO0"
-        r: requests.Response = requests.get(url)
+        r: requests.Response = requests.get(url, timeout=10)
         data: dict = r.json()
         data: list = data["bestMatches"]
     except KeyError:

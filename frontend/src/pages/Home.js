@@ -43,7 +43,7 @@ const HomePage = () => {
             <div className={styles.wrap}>
                 <SearchBar onSearchResult={searchResultHandler} />
             </div>
-            {searchResult && searchResult.length > 0 && 
+            {searchResult && searchResult.length > 0 &&
                 <SearchResult searchResultData={searchResult} />
             }
             {searchNotFound.length > 0 &&
@@ -52,7 +52,7 @@ const HomePage = () => {
                 </div>
             }
         </div>
-        
+
     );
 }
 
