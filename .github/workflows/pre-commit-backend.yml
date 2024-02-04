@@ -2,11 +2,9 @@ name: Pre-commit - Backend
 
 on:
   push:
-    # paths:
-    #   - 'backend/**'
 
 jobs:
-  lint-code:
+  pre-commit:
     runs-on: ubuntu-22.04
 
     steps:

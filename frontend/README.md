@@ -1,1 +1,0 @@
-# Stock App - Frontend

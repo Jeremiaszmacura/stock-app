@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - 'master'
-    paths:
-      - 'backend/**'
 
 jobs:
-  snyk-scan:
+  sast-scan:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
