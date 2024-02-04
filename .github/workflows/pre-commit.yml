@@ -17,10 +17,5 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          pip install pylint==7.4.0
-          pylint --exit-zero backend
-
-      - name: Lint with black
-        run: |
-          pip install black==23.1.0
-          python -m black -l 120 --check backend
+          pip install pre-commit==3.6.0
+          pre-commit run -a
