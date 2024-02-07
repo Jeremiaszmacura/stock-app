@@ -1,3 +1,10 @@
 docker-compose.yml
 .pytest_cache
 mongo-data
+LICENSE
+README.md
+CHANGELOG.md
+.gitignore
+.git
+.gitatrributes
+.github

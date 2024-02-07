@@ -1,5 +1,10 @@
 # Development Guide
 
+## Package
+
+Package structure follows convetion introduced in following doc:
+https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
+
 ## Create python virutal enviroment
 
 ```sh

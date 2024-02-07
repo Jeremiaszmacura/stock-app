@@ -6,6 +6,6 @@ COPY ./requirements*.txt install.sh ./
 
 RUN ./install.sh
 
-COPY ./src .
+COPY . .
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]

@@ -5,3 +5,4 @@ sql_app.db
 mongo-data
 node_modules
 .pytest_cache
+site/
