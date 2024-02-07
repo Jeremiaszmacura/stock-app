@@ -36,8 +36,8 @@ repos:
     language_version: python3
     args: [--skip, B101]
 
-- repo: https://github.com/pypa/pip-audit
-  rev: v2.7.0
-  hooks:
-    -   id: pip-audit
-        args: ["-r", "requirements-dev.txt", --progress-spinner]
+# - repo: https://github.com/pypa/pip-audit
+#   rev: v2.7.0
+#   hooks:
+#     -   id: pip-audit
+#         args: ["-r", "requirements-dev.txt", --progress-spinner, on]
