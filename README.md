@@ -1,3 +1,3 @@
 # Perform Stock Data Analysis
 
-TODO
+Web Application that collect stock data and analyse it by calculating statistics and generating charts
