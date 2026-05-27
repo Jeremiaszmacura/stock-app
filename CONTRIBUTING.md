@@ -1,50 +1,49 @@
 # Development Guide
 
-## Package
+## Package structure
 
-Package structure follows convetion introduced in following doc:
-https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
+Follows the `src` layout convention — source lives in `src/stock-app/`, tests in `tests/`.
 
-## Create python virutal enviroment
+Reference: https://www.pyopensci.org/python-package-guide/package-structure-code/python-package-structure.html
 
-```sh
-cd backend
-```
+## Create a virtual environment
+
+From the project root:
 
 Unix
 
 ```sh
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 Windows (PowerShell)
 
 ```sh
-python -m venv .venv
+python3 -m venv .venv
 Set-ExecutionPolicy Unrestricted -Scope Process
 .venv\Scripts\activate
 ```
 
-## Install DEV dependecies
+## Install dev dependencies
 
 ```sh
-python -m pip install -r requirements-dev.txt
+pip install -r requirements-dev.txt
 ```
 
-## Start database
+## Start the database
 
 ```sh
-docker-compose up
+docker compose up -d
 ```
 
-## Run backend app
+## Run the app
 
 ```sh
-uvicorn main:app --reload
+uvicorn main:app --reload --app-dir src/stock-app
 ```
 
-## Api docs
+## API docs
 
 Swagger UI
 
@@ -58,26 +57,26 @@ ReDoc
 http://127.0.0.1:8000/redoc
 ```
 
-## OpenAPI schema
+OpenAPI schema
 
 ```text
 http://127.0.0.1:8000/openapi.json
 ```
 
-## Mongo-express
+Mongo Express (DB browser)
 
 ```text
-localhost:8081
+http://localhost:8081
 ```
 
-## Run pre-commit
+## Run tests
+
+```sh
+pytest tests/ -v
+```
+
+## Run pre-commit hooks
 
 ```sh
 pre-commit run -a
-```
-
-App is avaiable under URL:
-
-```text
-http://127.0.0.1/:80
 ```

@@ -4,7 +4,7 @@ version: '3.8'
 services:
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:8.0
     restart: always
     env_file: .env
     environment:
@@ -19,7 +19,7 @@ services:
       - stock-network
 
   mongo-express:
-    image: mongo-express
+    image: mongo-express:1.0.2
     container_name: stock-app-mongo-express
     restart: unless-stopped
     ports:
